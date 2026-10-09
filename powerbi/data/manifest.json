@@ -1,0 +1,265 @@
+{
+  "format": "csv, UTF-8, comma-separated, ISO dates, '.' decimals, booleans as 0/1, empty = missing",
+  "distance_quartile_cut_points_km": [
+    183.77445533640412,
+    433.9554672939902,
+    798.9925112206873
+  ],
+  "tables": {
+    "fact_orders": {
+      "rows": 99441,
+      "columns": [
+        "order_id",
+        "purchase_date",
+        "customer_state",
+        "order_status",
+        "fulfilment_class",
+        "fulfilment_label",
+        "in_window",
+        "is_delivery_kpi_eligible",
+        "is_late",
+        "is_severe_late",
+        "delivery_outcome",
+        "lead_time_days",
+        "promised_lead_days",
+        "promise_error_days",
+        "days_late_band",
+        "promised_group",
+        "review_row_count",
+        "review_score",
+        "review_before_delivery_flag",
+        "is_review_p0",
+        "is_review_p1",
+        "is_single_seller",
+        "ts_sequence_violation"
+      ],
+      "bytes": 17277842,
+      "sha256": "b44ee98c9706c3a8b998b25b164b7cf93854df2340c5c4d71d061b048ddba09c",
+      "kind": "fact"
+    },
+    "fact_seller_orders": {
+      "rows": 94931,
+      "columns": [
+        "order_id",
+        "seller_id",
+        "seller_state",
+        "customer_state",
+        "lane",
+        "purchase_date",
+        "is_cross_state",
+        "distance_km",
+        "distance_band",
+        "promised_group",
+        "is_late",
+        "is_severe_late",
+        "delivery_outcome",
+        "lead_time_days",
+        "promised_lead_days",
+        "promise_error_days",
+        "days_late_band",
+        "review_row_count",
+        "review_score",
+        "review_before_delivery_flag",
+        "is_review_p0",
+        "is_review_p1"
+      ],
+      "bytes": 18272202,
+      "sha256": "7904ec5038019d105d6fbe4f6891b75a55b0c65fa843b598b592ec9b815e0e21",
+      "kind": "fact"
+    },
+    "dim_date": {
+      "rows": 791,
+      "columns": [
+        "date_key",
+        "year",
+        "month_number",
+        "year_month",
+        "month_start",
+        "month_label",
+        "month_sort",
+        "is_in_window"
+      ],
+      "bytes": 43806,
+      "sha256": "96be03f8cb832d59b1014714b21fe31411a0f4203d348c029186ecf06881e737",
+      "kind": "dimension"
+    },
+    "dim_state": {
+      "rows": 27,
+      "columns": [
+        "state_code",
+        "state_name",
+        "macro_region",
+        "macro_region_order"
+      ],
+      "bytes": 712,
+      "sha256": "a2d818d66bd922187e81993d8a8663160481a35b43943e357c49b067913fa8e7",
+      "kind": "dimension"
+    },
+    "dim_origin_state": {
+      "rows": 22,
+      "columns": [
+        "origin_state_code",
+        "origin_state_name",
+        "origin_macro_region",
+        "origin_macro_region_order"
+      ],
+      "bytes": 644,
+      "sha256": "69c4be7aeffcbc11544d904edbfd66484ed6510fdf85ca1610662326ee7aec0a",
+      "kind": "dimension"
+    },
+    "dim_seller": {
+      "rows": 2925,
+      "columns": [
+        "seller_id",
+        "seller_label"
+      ],
+      "bytes": 122873,
+      "sha256": "d8c72920bce8b1f542c5317e384c66249c3ecc1f530e23ed930a8aead5ef9fcc",
+      "kind": "dimension"
+    },
+    "snap_priority_candidates": {
+      "rows": 3360,
+      "columns": [
+        "snapshot_level",
+        "segment",
+        "segment_label",
+        "origin_state",
+        "destination_state",
+        "display_region",
+        "northeast_bound",
+        "tier",
+        "tier_sort",
+        "tier_x10",
+        "tier_x30",
+        "tier_excl_episodes",
+        "consistency",
+        "eligible",
+        "low_confidence",
+        "signal",
+        "n_delivered",
+        "n_late",
+        "late_rate",
+        "late_rate_lo",
+        "late_rate_hi",
+        "reference_late_rate",
+        "expected_late",
+        "excess_late",
+        "excess_late_lo",
+        "excess_late_hi",
+        "oe_s1",
+        "n_h1",
+        "rate_h1",
+        "n_h2",
+        "rate_h2",
+        "episode_late_share",
+        "rank_excess_late",
+        "n_reviewed_p0",
+        "p0_share_of_delivered",
+        "n_low",
+        "low_rate",
+        "excess_low",
+        "excess_low_after",
+        "early_review_share",
+        "low_ontime_rate",
+        "low_ontime_rate_lo",
+        "low_ontime_rate_hi",
+        "excess_low_ontime"
+      ],
+      "bytes": 1499320,
+      "sha256": "bda18c9573aeec683105d9ddb3c55d31bd7953e593d408bc8e3a4deac7acea1b",
+      "kind": "snapshot"
+    },
+    "snap_tier_counts": {
+      "rows": 9,
+      "columns": [
+        "snapshot_level",
+        "min_excess_late",
+        "is_primary",
+        "investigate",
+        "watch",
+        "no_signal",
+        "insufficient_data"
+      ],
+      "bytes": 292,
+      "sha256": "15e1e7d51d3d95e5e126d5b14ccf0d56ed06794efbb258fe0798370a964512e0",
+      "kind": "snapshot"
+    },
+    "snap_overlap": {
+      "rows": 14,
+      "columns": [
+        "row_type",
+        "label",
+        "in_state",
+        "in_lane",
+        "in_seller",
+        "n_orders",
+        "n_late",
+        "excess_vs_ref"
+      ],
+      "bytes": 1019,
+      "sha256": "ab3cc59185e95c3941f4e2fcfd2f80c500423cf1635c61f8b6378295b9ac81fe",
+      "kind": "snapshot"
+    },
+    "snap_metadata": {
+      "rows": 15,
+      "columns": [
+        "key",
+        "value",
+        "description"
+      ],
+      "bytes": 1792,
+      "sha256": "7d9cbb1376730a2ae22536976f3aa676398400e17a0bfe7a276c00ce8fbf8ed4",
+      "kind": "snapshot"
+    }
+  },
+  "relationships": [
+    {
+      "id": "R1",
+      "one": "dim_date[date_key]",
+      "many": "fact_orders[purchase_date]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    },
+    {
+      "id": "R2",
+      "one": "dim_date[date_key]",
+      "many": "fact_seller_orders[purchase_date]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    },
+    {
+      "id": "R3",
+      "one": "dim_state[state_code]",
+      "many": "fact_orders[customer_state]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    },
+    {
+      "id": "R4",
+      "one": "dim_state[state_code]",
+      "many": "fact_seller_orders[customer_state]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    },
+    {
+      "id": "R5",
+      "one": "dim_origin_state[origin_state_code]",
+      "many": "fact_seller_orders[seller_state]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    },
+    {
+      "id": "R6",
+      "one": "dim_seller[seller_id]",
+      "many": "fact_seller_orders[seller_id]",
+      "cardinality": "one-to-many",
+      "cross_filter": "single (dimension to fact)",
+      "active": true
+    }
+  ]
+}

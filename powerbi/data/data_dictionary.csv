@@ -1,0 +1,126 @@
+table,column,power_bi_type,role,description
+fact_orders,order_id,Text,key,Unique order id (grain key).
+fact_orders,purchase_date,Date,foreign key -> dim_date[date_key],Purchase date; the only date related to dim_date.
+fact_orders,customer_state,Text,foreign key -> dim_state[state_code],Customer (destination) state.
+fact_orders,order_status,Text,attribute,Original order status.
+fact_orders,fulfilment_class,Text,attribute,Six mutually exclusive fulfilment classes (machine value).
+fact_orders,fulfilment_label,Text,attribute,"Display label of the class, numbered for natural sort order."
+fact_orders,in_window,Whole number,flag,1 = purchased 2017-01..2018-08.
+fact_orders,is_delivery_kpi_eligible,Whole number,flag,"1 = delivered with a delivery date AND purchased in window (96,203 orders)."
+fact_orders,is_late,Whole number,flag,1 = delivered after the estimated calendar date; blank unless delivered with a date.
+fact_orders,is_severe_late,Whole number,flag,1 = more than 7 calendar days after the estimated date; blank unless delivered with a date.
+fact_orders,delivery_outcome,Text,attribute,'On time' / 'Late' text legend for charts; blank unless delivered with a date.
+fact_orders,lead_time_days,Decimal number,measure input,Purchase to delivery in fractional days; blank unless delivered with a date.
+fact_orders,promised_lead_days,Whole number,measure input,"Estimated date minus purchase date, days; blank unless delivered with a date."
+fact_orders,promise_error_days,Whole number,measure input,"Delivery date minus estimated date, signed days (negative = early)."
+fact_orders,days_late_band,Text,attribute,0. On time / 1. 1-3 / 2. 4-7 / 3. 8+ days late; blank unless delivered with a date.
+fact_orders,promised_group,Text,attribute,"Promised lead-time group (<=14, 15-21, 22-28, 29-35, 36+ days)."
+fact_orders,review_row_count,Whole number,attribute,"Number of review rows for the order (0, 1 or more)."
+fact_orders,review_score,Whole number,measure input,1-5 stars; blank unless exactly one review row (the latest review is never assumed authoritative).
+fact_orders,review_before_delivery_flag,Whole number,flag,1 = the single review was created strictly before the recorded delivery date; blank unless one review on a delivered order.
+fact_orders,is_review_p0,Whole number,flag,"1 = primary review population P0 (delivered in window, exactly one review row; 95,037 orders)."
+fact_orders,is_review_p1,Whole number,flag,"1 = sensitivity population P1 (P0 minus reviews created before delivery; 90,103 orders)."
+fact_orders,is_single_seller,Whole number,flag,1 = exactly one seller on the order.
+fact_orders,ts_sequence_violation,Whole number,flag,1 = at least one timestamp-sequence anomaly (kept in KPIs; available for sensitivity).
+fact_seller_orders,order_id,Text,key,Unique order id; repeats fact_orders[order_id] for reconciliation only (NO relationship).
+fact_seller_orders,seller_id,Text,foreign key -> dim_seller[seller_id],The single seller of the order.
+fact_seller_orders,seller_state,Text,foreign key -> dim_origin_state[origin_state_code],Seller (origin) state.
+fact_seller_orders,customer_state,Text,foreign key -> dim_state[state_code],Customer (destination) state.
+fact_seller_orders,lane,Text,attribute,"seller state > customer state, e.g. SP>RJ."
+fact_seller_orders,purchase_date,Date,foreign key -> dim_date[date_key],Purchase date.
+fact_seller_orders,is_cross_state,Whole number,flag,1 = seller state differs from customer state.
+fact_seller_orders,distance_km,Decimal number,measure input,"Straight-line ZIP-prefix centroid distance in km (an approximation, not road distance); blank if a centroid is missing."
+fact_seller_orders,distance_band,Text,attribute,Quartile band of distance_km (Q0 = unknown).
+fact_seller_orders,promised_group,Text,attribute,Promised lead-time group.
+fact_seller_orders,is_late,Whole number,flag,1 = delivered after the estimated calendar date.
+fact_seller_orders,is_severe_late,Whole number,flag,1 = more than 7 calendar days late.
+fact_seller_orders,delivery_outcome,Text,attribute,'On time' / 'Late' text legend for charts.
+fact_seller_orders,lead_time_days,Decimal number,measure input,"Purchase to delivery, fractional days."
+fact_seller_orders,promised_lead_days,Whole number,measure input,"Estimated date minus purchase date, days."
+fact_seller_orders,promise_error_days,Whole number,measure input,Signed days vs the estimated date.
+fact_seller_orders,days_late_band,Text,attribute,0. On time / 1. 1-3 / 2. 4-7 / 3. 8+ days late.
+fact_seller_orders,review_row_count,Whole number,attribute,Number of review rows.
+fact_seller_orders,review_score,Whole number,measure input,1-5 stars; blank unless exactly one review row.
+fact_seller_orders,review_before_delivery_flag,Whole number,flag,1 = review created before the recorded delivery date.
+fact_seller_orders,is_review_p0,Whole number,flag,1 = exactly one review row.
+fact_seller_orders,is_review_p1,Whole number,flag,"1 = exactly one review row, created on or after the delivery date."
+dim_date,date_key,Date,key,Calendar day (purchase-date dimension).
+dim_date,year,Whole number,attribute,Year.
+dim_date,month_number,Whole number,attribute,Month 1-12.
+dim_date,year_month,Text,attribute,YYYY-MM.
+dim_date,month_start,Date,attribute,First day of the month.
+dim_date,month_label,Text,attribute,e.g. Nov 2017; sort by month_sort.
+dim_date,month_sort,Whole number,sort key,"YYYYMM, used as 'sort by column' for month_label."
+dim_date,is_in_window,Whole number,flag,1 = day belongs to the analysis window (purchases 2017-01..2018-08).
+dim_state,state_code,Text,key,Two-letter customer state (27 rows).
+dim_state,state_name,Text,attribute,State name (ASCII).
+dim_state,macro_region,Text,attribute,IBGE macro-region (external display grouping).
+dim_state,macro_region_order,Whole number,sort key,1 North .. 5 South.
+dim_origin_state,origin_state_code,Text,key,Seller state code (role-specific copy of dim_state).
+dim_origin_state,origin_state_name,Text,attribute,State name.
+dim_origin_state,origin_macro_region,Text,attribute,IBGE macro-region of the origin state.
+dim_origin_state,origin_macro_region_order,Whole number,sort key,1 North .. 5 South.
+dim_seller,seller_id,Text,key,Seller id (one row per seller with at least one eligible single-seller order).
+dim_seller,seller_label,Text,attribute,"First 8 characters of the id, for display."
+snap_priority_candidates,snapshot_level,Text,attribute,"state, lane or seller (long table; one row per candidate segment)."
+snap_priority_candidates,segment,Text,key (with level),"State code, lane label (seller state > customer state) or full seller id."
+snap_priority_candidates,segment_label,Text,attribute,Display label (sellers shortened to 8 characters).
+snap_priority_candidates,origin_state,Text,attribute,Lane origin (seller) state; blank otherwise.
+snap_priority_candidates,destination_state,Text,attribute,Lane destination (customer) state; blank otherwise.
+snap_priority_candidates,display_region,Text,attribute,State: its macro-region; lane: DESTINATION macro-region; seller: blank.
+snap_priority_candidates,northeast_bound,Whole number,flag,Lanes only: 1 = destination state is in the Northeast (destination-based; origin is irrelevant).
+snap_priority_candidates,tier,Text,attribute,Provisional evidence tier (Investigate / Watch / No Signal / Insufficient Data) at the 20-order screening policy.
+snap_priority_candidates,tier_sort,Whole number,sort key,1 Investigate .. 4 Insufficient Data.
+snap_priority_candidates,tier_x10,Text,attribute,Tier with a 10-order screening threshold.
+snap_priority_candidates,tier_x30,Text,attribute,Tier with a 30-order screening threshold.
+snap_priority_candidates,tier_excl_episodes,Text,attribute,"Tier recomputed without purchases in 2017-11, 2018-02, 2018-03 (reference rate recomputed too)."
+snap_priority_candidates,consistency,Text,attribute,"consistent / inconsistent / unverified (a half-window with < 30 orders is unverified, not negative)."
+snap_priority_candidates,eligible,Whole number,flag,"1 = meets the minimum-N policy (state/lane >= 100, seller >= 50 orders)."
+snap_priority_candidates,low_confidence,Whole number,flag,1 = seller with 30-49 orders.
+snap_priority_candidates,signal,Whole number,flag,1 = Wilson interval of the late rate entirely above the reference rate.
+snap_priority_candidates,n_delivered,Whole number,snapshot value,"Delivered orders in the level's population, full window."
+snap_priority_candidates,n_late,Whole number,snapshot value,Late orders.
+snap_priority_candidates,late_rate,Decimal number,snapshot value,n_late / n_delivered.
+snap_priority_candidates,late_rate_lo,Decimal number,snapshot value,Wilson 95% lower bound.
+snap_priority_candidates,late_rate_hi,Decimal number,snapshot value,Wilson 95% upper bound.
+snap_priority_candidates,reference_late_rate,Decimal number,snapshot value,"Level population late rate (states 6.79%, lanes/sellers 6.87%)."
+snap_priority_candidates,expected_late,Decimal number,snapshot value,n_delivered x reference rate.
+snap_priority_candidates,excess_late,Decimal number,snapshot value,n_late - expected_late.
+snap_priority_candidates,excess_late_lo,Decimal number,snapshot value,n_delivered x (Wilson lower - reference).
+snap_priority_candidates,excess_late_hi,Decimal number,snapshot value,n_delivered x (Wilson upper - reference).
+snap_priority_candidates,oe_s1,Decimal number,snapshot value,Adjusted observed/expected from month x promised-lead strata (secondary context).
+snap_priority_candidates,n_h1,Whole number,snapshot value,Orders in H1 (purchases 2017-01..2017-10).
+snap_priority_candidates,rate_h1,Decimal number,snapshot value,Late rate in H1.
+snap_priority_candidates,n_h2,Whole number,snapshot value,Orders in H2 (2017-11..2018-08).
+snap_priority_candidates,rate_h2,Decimal number,snapshot value,Late rate in H2.
+snap_priority_candidates,episode_late_share,Decimal number,snapshot value,"Share of the segment's late orders purchased in 2017-11, 2018-02, 2018-03."
+snap_priority_candidates,rank_excess_late,Whole number,snapshot value,Rank by excess late orders among eligible segments of the level.
+snap_priority_candidates,n_reviewed_p0,Whole number,snapshot value,"Reviewed (single-review, P0) orders."
+snap_priority_candidates,p0_share_of_delivered,Decimal number,snapshot value,"n_reviewed_p0 / n_delivered (single-review share, not 'any review')."
+snap_priority_candidates,n_low,Whole number,snapshot value,1-2 star reviewed orders.
+snap_priority_candidates,low_rate,Decimal number,snapshot value,n_low / n_reviewed_p0.
+snap_priority_candidates,excess_low,Decimal number,snapshot value,Excess low-score orders over the level's reference low-score share (all P0 reviews).
+snap_priority_candidates,excess_low_after,Decimal number,snapshot value,"Same, using reviews created on or after delivery only (P1)."
+snap_priority_candidates,early_review_share,Decimal number,snapshot value,Share of the segment's P0 reviews created before the recorded delivery date.
+snap_priority_candidates,low_ontime_rate,Decimal number,snapshot value,Low-score rate among ON-TIME reviewed orders.
+snap_priority_candidates,low_ontime_rate_lo,Decimal number,snapshot value,Wilson lower bound.
+snap_priority_candidates,low_ontime_rate_hi,Decimal number,snapshot value,Wilson upper bound.
+snap_priority_candidates,excess_low_ontime,Decimal number,snapshot value,Excess low-score orders among on-time reviewed orders.
+snap_tier_counts,snapshot_level,Text,attribute,"state, lane or seller."
+snap_tier_counts,min_excess_late,Whole number,attribute,"Screening threshold: 10, 20 (provisional policy) or 30."
+snap_tier_counts,is_primary,Whole number,flag,1 = the provisional 20-order policy.
+snap_tier_counts,investigate,Whole number,snapshot value,Segments in tier Investigate.
+snap_tier_counts,watch,Whole number,snapshot value,Watch.
+snap_tier_counts,no_signal,Whole number,snapshot value,No Signal.
+snap_tier_counts,insufficient_data,Whole number,snapshot value,Insufficient Data.
+snap_overlap,row_type,Text,attribute,membership (each order counted once) or summary.
+snap_overlap,label,Text,attribute,Row description.
+snap_overlap,in_state,Whole number,flag,Membership rows: order is in an Investigate state.
+snap_overlap,in_lane,Whole number,flag,In an Investigate lane.
+snap_overlap,in_seller,Whole number,flag,In an Investigate seller.
+snap_overlap,n_orders,Whole number,snapshot value,Single-seller orders.
+snap_overlap,n_late,Whole number,snapshot value,Late orders.
+snap_overlap,excess_vs_ref,Decimal number,snapshot value,Late orders minus orders x single-seller reference rate; summary rows show the double-counting of adding levels.
+snap_metadata,key,Text,key,Metadata key.
+snap_metadata,value,Text,attribute,Value.
+snap_metadata,description,Text,attribute,What it means / how to use it.

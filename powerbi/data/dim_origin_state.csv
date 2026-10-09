@@ -1,0 +1,23 @@
+origin_state_code,origin_state_name,origin_macro_region,origin_macro_region_order
+AM,Amazonas,North,1
+BA,Bahia,Northeast,2
+CE,Ceara,Northeast,2
+DF,Distrito Federal,Central-West,3
+ES,Espirito Santo,Southeast,4
+GO,Goias,Central-West,3
+MA,Maranhao,Northeast,2
+MG,Minas Gerais,Southeast,4
+MS,Mato Grosso do Sul,Central-West,3
+MT,Mato Grosso,Central-West,3
+PA,Para,North,1
+PB,Paraiba,Northeast,2
+PE,Pernambuco,Northeast,2
+PI,Piaui,Northeast,2
+PR,Parana,South,5
+RJ,Rio de Janeiro,Southeast,4
+RN,Rio Grande do Norte,Northeast,2
+RO,Rondonia,North,1
+RS,Rio Grande do Sul,South,5
+SC,Santa Catarina,South,5
+SE,Sergipe,Northeast,2
+SP,Sao Paulo,Southeast,4

@@ -1,0 +1,15 @@
+row_type,label,in_state,in_lane,in_seller,n_orders,n_late,excess_vs_ref
+membership,none of the three Investigate sets,0,0,0,64006,3011,-1383.6772708598874
+membership,seller,0,0,1,4567,368,54.427974002170004
+membership,lane,0,1,0,307,47,25.92125859835038
+membership,lane + seller,0,1,1,19,7,5.695452486542857
+membership,state,1,0,0,9161,836,207.0021173273219
+membership,state + seller,1,0,1,291,57,37.019824925472186
+membership,state + lane,1,1,0,14828,1894,875.9036563398679
+membership,state + lane + seller,1,1,1,1752,298,177.70698718016243
+summary,Investigate state set (own level),,,,26032,3085,1297.6325857728245
+summary,Investigate lane set (own level),,,,16906,2246,1085.2273546049237
+summary,Investigate seller set (own level),,,,6629,730,274.8502385943475
+summary,Union of the three sets (each order once),,,,30925,3507,1383.6772708598878
+summary,Naive sum of the three levels (double counted; never use),,,,,6061,2657.7101789720955
+summary,Double-counted excess (naive sum minus union),,,,,,1274.0329081122077

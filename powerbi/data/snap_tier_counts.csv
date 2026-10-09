@@ -1,0 +1,10 @@
+snapshot_level,min_excess_late,is_primary,investigate,watch,no_signal,insufficient_data
+state,10,0,12,3,9,3
+state,20,1,10,5,9,3
+state,30,0,9,6,9,3
+lane,10,0,16,7,47,338
+lane,20,1,9,12,49,338
+lane,30,0,9,12,49,338
+seller,10,0,21,59,354,2491
+seller,20,1,8,71,355,2491
+seller,30,0,4,75,355,2491

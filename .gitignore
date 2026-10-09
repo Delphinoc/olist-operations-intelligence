@@ -57,3 +57,7 @@ desktop.ini
 
 # ---- Claude Code local settings ----
 .claude/settings.local.json
+
+# ---- Power BI package: row-level order facts are rebuilt with scripts/export_powerbi.py ----
+powerbi/data/fact_orders.csv
+powerbi/data/fact_seller_orders.csv

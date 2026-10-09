@@ -41,7 +41,13 @@ python analysis/build_geographic_seller_report.py # writes reports/geographic_se
 # 8. operational prioritization (provisional evidence tiers; no composite score)
 python analysis/operational_prioritization.py
 python analysis/build_prioritization_report.py   # writes reports/operational_prioritization_findings.md
+
+# 9. Power BI Stage A: import package (CSV), Power Query script and validation report (no .pbix is built)
+python scripts/export_powerbi.py                  # writes powerbi/data/*.csv, manifest, data dictionary, powerbi/power_query.m
+python scripts/build_powerbi_validation_report.py # writes reports/powerbi_preparation_validation.md
 ```
+
+Power BI implementation guide (import, relationships, DAX, page specifications, KPI reconciliation checklist): [`powerbi/README.md`](powerbi/README.md).
 
 All paths are relative to the project root; no absolute paths are stored.
 Optional arguments: `python scripts/build_model.py --raw <csv dir> --db <output .duckdb>`.
@@ -72,6 +78,7 @@ Check the licence and terms on the Kaggle page before reusing or redistributing 
 | `scripts/profile_dataset.py`, `validate_kpis.py`, `build_*_report.py` | Earlier phases (profiling and KPI validation) |
 | `sql/analysis/delivery/`, `satisfaction/`, `geography/`, `prioritization/` | Primary KPI queries for the four analysis workstreams (DuckDB SQL) |
 | `analysis/` | Python statistics, charts and findings-report generators (`delivery_reliability.py`, `customer_satisfaction.py`, `geographic_seller.py`, `operational_prioritization.py`, `build_*_report.py`) |
+| `sql/powerbi/`, `scripts/export_powerbi.py`, `scripts/powerbi_dax_equivalents.py`, `powerbi/` | Power BI import package, DAX dictionary, page specifications and implementation guide (Stage A) |
 | `tests/` | pytest suite, independent pandas reference (`reference_pandas.py`) and documented anchors (`anchors.py`) |
 | `reports/` | Feasibility, KPI validation, blueprint, model validation and delivery-reliability reports; `tables/` (CSV) and `figures/` (PNG) hold analysis outputs |
 

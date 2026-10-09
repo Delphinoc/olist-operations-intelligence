@@ -1,0 +1,16 @@
+key,value,description
+snapshot_scope,Fixed-period snapshot,"All snap_* tables are precomputed for purchases 2017-01..2018-08. They are NOT recalculated by date, state or seller slicers."
+window,2017-01-01 to 2018-08-31,Purchase-date window of the analysis.
+reference_date,2018-10-17,Latest event timestamp in the extract (used to classify open orders).
+reference_late_rate_state,0.067888,Late rate of all delivered-in-window orders (state level reference).
+reference_late_rate_single_seller,0.068660,Late rate of single-seller delivered-in-window orders (lane and seller reference).
+reference_low_score_rate_on_time,0.086949,Low-score (1-2 star) share among on-time reviewed single-seller orders.
+primary_excess_threshold,20,"Minimum excess late orders for 'Investigate'. An OPERATIONAL SCREENING POLICY, not statistical significance."
+sensitivity_thresholds,"10, 20, 30",Thresholds reported in snap_tier_counts.
+minimum_n,state/lane >= 100 orders; seller >= 50 (30-49 low-confidence),Blueprint rule R8.
+consistency_rule,"H1 = 2017-01..2017-10, H2 = 2017-11..2018-08","A half with fewer than 30 orders is 'unverified', which is not a negative result."
+high_delay_months,"2017-11, 2018-02, 2018-03",Excluded in the tier_excl_episodes column.
+lane_notation,seller state > customer state,Northeast-bound means the DESTINATION (customer) state is in the Northeast; origin is irrelevant.
+seller_evidence,Secondary screening evidence,Only 2 of 8 Investigate sellers remain Investigate when the three high-delay months are excluded.
+review_measures,Association only,Low-score measures use single-review orders; some reviews are written before delivery; never read as causal.
+source,scripts/export_powerbi.py -> operational_prioritization.compute_all,Regenerate with the script; do not edit by hand.
