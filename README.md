@@ -2,9 +2,11 @@
 
 E-commerce operations analytics on the public Olist Brazilian marketplace dataset: delivery reliability,
 customer satisfaction and operational risk concentration. This README currently documents **Phase 1: the
-analytical data model** and **Workstream 1 (delivery reliability)** **Workstream 3 (customer satisfaction)** and **Workstream 2 (geographic and seller performance)**. See `reports/project_blueprint.md` for the full
+analytical data model** and the four analysis workstreams: delivery reliability, customer satisfaction,
+geographic and seller performance, and operational prioritization. See `reports/project_blueprint.md` for the full
 project design, `reports/data_model_validation.md` for the validation of the model and
-`reports/delivery_reliability_findings.md`, `reports/customer_satisfaction_findings.md` and `reports/geographic_seller_findings.md` for the findings.
+`reports/delivery_reliability_findings.md`, `reports/customer_satisfaction_findings.md`,
+`reports/geographic_seller_findings.md` and `reports/operational_prioritization_findings.md` for the findings.
 
 ## Rebuild the model from the raw CSVs
 
@@ -35,6 +37,10 @@ python analysis/build_satisfaction_report.py     # writes reports/customer_satis
 # 7. geographic and seller workstream (descriptive screening; no priority tiers yet)
 python analysis/geographic_seller.py
 python analysis/build_geographic_seller_report.py # writes reports/geographic_seller_findings.md
+
+# 8. operational prioritization (provisional evidence tiers; no composite score)
+python analysis/operational_prioritization.py
+python analysis/build_prioritization_report.py   # writes reports/operational_prioritization_findings.md
 ```
 
 All paths are relative to the project root; no absolute paths are stored.
@@ -64,8 +70,8 @@ Check the licence and terms on the Kaggle page before reusing or redistributing 
 | `scripts/build_model.py` | Runs the SQL in order, then ~33 structural assertions (fails and removes the DB on violation) |
 | `scripts/build_validation_report.py` | Runs the tests and writes the validation report |
 | `scripts/profile_dataset.py`, `validate_kpis.py`, `build_*_report.py` | Earlier phases (profiling and KPI validation) |
-| `sql/analysis/delivery/`, `satisfaction/`, `geography/` | Primary KPI queries for the three analysis workstreams (DuckDB SQL) |
-| `analysis/` | Python statistics, charts and findings-report generators (`delivery_reliability.py`, `customer_satisfaction.py`, `geographic_seller.py`, `build_*_report.py`) |
+| `sql/analysis/delivery/`, `satisfaction/`, `geography/`, `prioritization/` | Primary KPI queries for the four analysis workstreams (DuckDB SQL) |
+| `analysis/` | Python statistics, charts and findings-report generators (`delivery_reliability.py`, `customer_satisfaction.py`, `geographic_seller.py`, `operational_prioritization.py`, `build_*_report.py`) |
 | `tests/` | pytest suite, independent pandas reference (`reference_pandas.py`) and documented anchors (`anchors.py`) |
 | `reports/` | Feasibility, KPI validation, blueprint, model validation and delivery-reliability reports; `tables/` (CSV) and `figures/` (PNG) hold analysis outputs |
 

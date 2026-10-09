@@ -1,0 +1,30 @@
+tier,tier_ex,n,level
+Insufficient Data,Insufficient Data,3,state
+Investigate,Investigate,8,state
+Investigate,No Signal,1,state
+Investigate,Watch,1,state
+No Signal,No Signal,9,state
+Watch,Investigate,1,state
+Watch,No Signal,2,state
+Watch,Watch,2,state
+Insufficient Data,Insufficient Data,324,lane
+Insufficient Data,absent,14,lane
+Investigate,Investigate,6,lane
+Investigate,Watch,3,lane
+No Signal,Insufficient Data,9,lane
+No Signal,No Signal,39,lane
+No Signal,Watch,1,lane
+Watch,No Signal,4,lane
+Watch,Watch,8,lane
+Insufficient Data,Insufficient Data,2392,seller
+Insufficient Data,Watch,7,seller
+Insufficient Data,absent,92,seller
+Investigate,Investigate,2,seller
+Investigate,No Signal,5,seller
+Investigate,Watch,1,seller
+No Signal,Insufficient Data,81,seller
+No Signal,No Signal,263,seller
+No Signal,Watch,11,seller
+Watch,Insufficient Data,21,seller
+Watch,No Signal,21,seller
+Watch,Watch,29,seller

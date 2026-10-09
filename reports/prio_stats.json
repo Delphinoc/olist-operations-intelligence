@@ -1,0 +1,492 @@
+{
+  "references": {
+    "state": {
+      "late": 0.06788769580990198,
+      "h1": 0.03715918367346939,
+      "h2": 0.08223794565250542,
+      "low": 0.12779233351221103,
+      "low_after": 0.09492469729087821,
+      "low_ontime": 0.09229086562855886,
+      "low_early": 0.728009728415079,
+      "n_delivered": 96203,
+      "n_late": 6531,
+      "n_reviewed": 95037,
+      "n_segments": 27,
+      "n_eligible": 24
+    },
+    "lane": {
+      "late": 0.06866039544511277,
+      "h1": 0.03749298656721344,
+      "h2": 0.08327144448570367,
+      "low": 0.12319814056635961,
+      "low_after": 0.08968978204854118,
+      "low_ontime": 0.08694856724678117,
+      "low_early": 0.7286033746696483,
+      "n_delivered": 94931,
+      "n_late": 6518,
+      "n_reviewed": 93792,
+      "n_segments": 408,
+      "n_eligible": 70
+    },
+    "seller": {
+      "late": 0.06866039544511277,
+      "h1": 0.03749298656721344,
+      "h2": 0.08327144448570367,
+      "low": 0.12319814056635961,
+      "low_after": 0.08968978204854118,
+      "low_ontime": 0.08694856724678117,
+      "low_early": 0.7286033746696483,
+      "n_delivered": 94931,
+      "n_late": 6518,
+      "n_reviewed": 93792,
+      "n_segments": 2925,
+      "n_eligible": 412
+    }
+  },
+  "episode_comparison": {
+    "state": {
+      "n_eligible_full": 24,
+      "n_eligible_excl": 24,
+      "spearman_excess": 0.9504347826086955,
+      "top10_overlap": 8,
+      "investigate_full": [
+        "AL",
+        "BA",
+        "CE",
+        "ES",
+        "MA",
+        "PA",
+        "PE",
+        "RJ",
+        "SC",
+        "SE"
+      ],
+      "investigate_excl": [
+        "AL",
+        "BA",
+        "CE",
+        "ES",
+        "MA",
+        "PA",
+        "PB",
+        "PE",
+        "RJ"
+      ],
+      "investigate_kept": [
+        "AL",
+        "BA",
+        "CE",
+        "ES",
+        "MA",
+        "PA",
+        "PE",
+        "RJ"
+      ],
+      "investigate_lost": [
+        "SC",
+        "SE"
+      ],
+      "investigate_gained": [
+        "PB"
+      ],
+      "transitions": [
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "Insufficient Data",
+          "n": 3
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Investigate",
+          "n": 8
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "No Signal",
+          "n": 1
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Watch",
+          "n": 1
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "No Signal",
+          "n": 9
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "Investigate",
+          "n": 1
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "No Signal",
+          "n": 2
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "Watch",
+          "n": 2
+        }
+      ],
+      "population_episode_late_share": 0.48354003981013627
+    },
+    "lane": {
+      "n_eligible_full": 70,
+      "n_eligible_excl": 61,
+      "spearman_excess": 0.880962453728186,
+      "top10_overlap": 9,
+      "investigate_full": [
+        "SP>AL",
+        "SP>BA",
+        "SP>ES",
+        "SP>MA",
+        "SP>PA",
+        "SP>PE",
+        "SP>PI",
+        "SP>RJ",
+        "SP>SC"
+      ],
+      "investigate_excl": [
+        "SP>AL",
+        "SP>BA",
+        "SP>ES",
+        "SP>MA",
+        "SP>PE",
+        "SP>RJ"
+      ],
+      "investigate_kept": [
+        "SP>AL",
+        "SP>BA",
+        "SP>ES",
+        "SP>MA",
+        "SP>PE",
+        "SP>RJ"
+      ],
+      "investigate_lost": [
+        "SP>PA",
+        "SP>PI",
+        "SP>SC"
+      ],
+      "investigate_gained": [],
+      "transitions": [
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "Insufficient Data",
+          "n": 324
+        },
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "absent",
+          "n": 14
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Investigate",
+          "n": 6
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Watch",
+          "n": 3
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "Insufficient Data",
+          "n": 9
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "No Signal",
+          "n": 39
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "Watch",
+          "n": 1
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "No Signal",
+          "n": 4
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "Watch",
+          "n": 8
+        }
+      ],
+      "population_episode_late_share": 0.4834305001534213
+    },
+    "seller": {
+      "n_eligible_full": 412,
+      "n_eligible_excl": 323,
+      "spearman_excess": 0.7315868637337477,
+      "top10_overlap": 3,
+      "investigate_full": [
+        "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "1f50f920176fa81dab994f9023523100",
+        "4869f7a5dfa277a7dca6462dcf3b52b2",
+        "4a3ca9315b744ce9f8e9374361493884",
+        "7c67e1448b00f6e969d365cea6b010ab",
+        "7d13fca15225358621be4086e1eb0964",
+        "8160255418d5aaa7dbdc9f4c64ebda44",
+        "88460e8ebdecbfecb5f9601833981930"
+      ],
+      "investigate_excl": [
+        "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "7c67e1448b00f6e969d365cea6b010ab"
+      ],
+      "investigate_kept": [
+        "06a2c3af7b3aee5d69171b0e14f0ee87",
+        "7c67e1448b00f6e969d365cea6b010ab"
+      ],
+      "investigate_lost": [
+        "1f50f920176fa81dab994f9023523100",
+        "4869f7a5dfa277a7dca6462dcf3b52b2",
+        "4a3ca9315b744ce9f8e9374361493884",
+        "7d13fca15225358621be4086e1eb0964",
+        "8160255418d5aaa7dbdc9f4c64ebda44",
+        "88460e8ebdecbfecb5f9601833981930"
+      ],
+      "investigate_gained": [],
+      "transitions": [
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "Insufficient Data",
+          "n": 2392
+        },
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "Watch",
+          "n": 7
+        },
+        {
+          "tier": "Insufficient Data",
+          "tier_ex": "absent",
+          "n": 92
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Investigate",
+          "n": 2
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "No Signal",
+          "n": 5
+        },
+        {
+          "tier": "Investigate",
+          "tier_ex": "Watch",
+          "n": 1
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "Insufficient Data",
+          "n": 81
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "No Signal",
+          "n": 263
+        },
+        {
+          "tier": "No Signal",
+          "tier_ex": "Watch",
+          "n": 11
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "Insufficient Data",
+          "n": 21
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "No Signal",
+          "n": 21
+        },
+        {
+          "tier": "Watch",
+          "tier_ex": "Watch",
+          "n": 29
+        }
+      ],
+      "population_episode_late_share": 0.4834305001534213
+    }
+  },
+  "threshold_changes": [
+    {
+      "level": "state",
+      "added_going_20_to_10": [
+        "PB",
+        "RN"
+      ],
+      "dropped_going_20_to_30": [
+        "SE"
+      ],
+      "nested": true
+    },
+    {
+      "level": "lane",
+      "added_going_20_to_10": [
+        "MA>SP",
+        "MG>BA",
+        "PR>BA",
+        "SC>RJ",
+        "SP>PB",
+        "SP>RN",
+        "SP>SE"
+      ],
+      "dropped_going_20_to_30": [],
+      "nested": true
+    },
+    {
+      "level": "seller",
+      "added_going_20_to_10": [
+        "1ca7077d890b907f89be8c954a02686a",
+        "2c9e548be18521d1c43cde1c582c6de8",
+        "54965bbe3e4f07ae045b90b0b8541f52",
+        "620c87c171fb2a6dd6e8bb4dec959fc6",
+        "712e6ed8aa4aa1fa65dab41fed5737e4",
+        "855668e0971d4dfd7bef1b6a4133b41b",
+        "897060da8b9a21f655304d50fd935913",
+        "8b321bb669392f5163d04c59e235e066",
+        "a49928bcdf77c55c6d6e05e09a9b4ca5",
+        "beadbee30901a7f61d031b6b686095ad",
+        "cd68562d3f44870c08922d380acae552",
+        "e5a3438891c0bfdb9394643f95273d8e",
+        "f7ba60f8c3f99e7ee4042fdef03b70c4"
+      ],
+      "dropped_going_20_to_30": [
+        "7c67e1448b00f6e969d365cea6b010ab",
+        "7d13fca15225358621be4086e1eb0964",
+        "8160255418d5aaa7dbdc9f4c64ebda44",
+        "88460e8ebdecbfecb5f9601833981930"
+      ],
+      "nested": true
+    }
+  ],
+  "overlap": {
+    "reference_rate_single_seller": 0.06866039544511277,
+    "n_single_seller_orders": 94931,
+    "per_level": {
+      "state": {
+        "n_orders": 26032,
+        "n_late": 3085,
+        "excess": 1297.6325857728245
+      },
+      "lane": {
+        "n_orders": 16906,
+        "n_late": 2246,
+        "excess": 1085.2273546049237
+      },
+      "seller": {
+        "n_orders": 6629,
+        "n_late": 730,
+        "excess": 274.8502385943475
+      }
+    },
+    "pairs": [
+      {
+        "pair": "state & lane",
+        "orders_a": 26032,
+        "orders_b": 16906,
+        "orders_both": 16580,
+        "share_of_a_in_b": 0.6369084204056545,
+        "share_of_b_in_a": 0.980716905240743,
+        "late_both": 2192
+      },
+      {
+        "pair": "state & seller",
+        "orders_a": 26032,
+        "orders_b": 6629,
+        "orders_both": 2043,
+        "share_of_a_in_b": 0.07848033189920098,
+        "share_of_b_in_a": 0.3081912807361593,
+        "late_both": 355
+      },
+      {
+        "pair": "lane & seller",
+        "orders_a": 16906,
+        "orders_b": 6629,
+        "orders_both": 1771,
+        "share_of_a_in_b": 0.10475570803265113,
+        "share_of_b_in_a": 0.26715945089757126,
+        "late_both": 305
+      }
+    ],
+    "union": {
+      "n_orders": 30925,
+      "n_late": 3507,
+      "excess": 1383.6772708598878,
+      "share_of_all_orders": 0.3257629225437423,
+      "share_of_all_late": 0.5380484811291807
+    },
+    "naive_sum_of_level_excess": 2657.7101789720955,
+    "double_counted_excess": 1274.0329081122077,
+    "late_orders_naive_sum": 6061,
+    "late_orders_union": 3507
+  },
+  "special_ne_lanes": [
+    "MG>BA",
+    "PR>BA",
+    "SP>AL",
+    "SP>BA",
+    "SP>CE",
+    "SP>MA",
+    "SP>PB",
+    "SP>PE",
+    "SP>PI",
+    "SP>RN",
+    "SP>SE"
+  ],
+  "axis_relationship": {
+    "state": {
+      "spearman_excess_late_vs_excess_low": 0.9121739130434783,
+      "spearman_excess_late_vs_excess_low_ontime": 0.20173913043478262,
+      "coverage_min": 0.9798301486199575,
+      "coverage_max": 0.9969879518072289,
+      "coverage_overall": 0.9878797958483623,
+      "early_review_share_overall": 0.0519166219472416
+    },
+    "lane": {
+      "spearman_excess_late_vs_excess_low": 0.9092992739042952,
+      "spearman_excess_late_vs_excess_low_ontime": 0.46708483148346225,
+      "coverage_min": 0.9526627218934911,
+      "coverage_max": 1.0,
+      "coverage_overall": 0.9880018118422854,
+      "early_review_share_overall": 0.05244583759808939
+    },
+    "seller": {
+      "spearman_excess_late_vs_excess_low": 0.494688290860773,
+      "spearman_excess_late_vs_excess_low_ontime": 0.15621058501796573,
+      "coverage_min": 0.94,
+      "coverage_max": 1.0,
+      "coverage_overall": 0.9880018118422854,
+      "early_review_share_overall": 0.05244583759808939
+    }
+  },
+  "episode_months": [
+    "2017-11-01",
+    "2018-02-01",
+    "2018-03-01"
+  ],
+  "rules": {
+    "primary_excess_threshold": 20,
+    "thresholds": [
+      10,
+      20,
+      30
+    ],
+    "half_min_n": 30,
+    "min_n": {
+      "state": 100,
+      "lane": 100,
+      "seller": 50
+    },
+    "seller_low_confidence_n": 30
+  }
+}

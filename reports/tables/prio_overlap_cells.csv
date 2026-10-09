@@ -1,0 +1,9 @@
+in_state,in_lane,in_seller,n_orders,n_late,excess_vs_ref
+False,False,False,64006,3011,-1383.6772708598874
+False,False,True,4567,368,54.427974002170004
+False,True,False,307,47,25.92125859835038
+False,True,True,19,7,5.695452486542857
+True,False,False,9161,836,207.0021173273219
+True,False,True,291,57,37.019824925472186
+True,True,False,14828,1894,875.9036563398679
+True,True,True,1752,298,177.70698718016243

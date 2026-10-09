@@ -1,0 +1,10 @@
+level,min_excess_late,Investigate,Watch,No Signal,Insufficient Data
+state,10,12,3,9,3
+state,20,10,5,9,3
+state,30,9,6,9,3
+lane,10,16,7,47,338
+lane,20,9,12,49,338
+lane,30,9,12,49,338
+seller,10,21,59,354,2491
+seller,20,8,71,355,2491
+seller,30,4,75,355,2491
