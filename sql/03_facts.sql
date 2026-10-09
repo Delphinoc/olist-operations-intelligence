@@ -185,10 +185,12 @@ SELECT
     END AS days_late_band,
 
     -- timestamp-sequence anomalies (blueprint R7): flagged, never deleted
-    (approved_ts < purchase_ts OR carrier_ts < purchase_ts OR carrier_ts < approved_ts
+    -- coalesce: a comparison against a missing timestamp is NULL; "no violation established" must be FALSE,
+    -- otherwise `WHERE NOT ts_sequence_violation` silently drops those orders
+    coalesce(approved_ts < purchase_ts OR carrier_ts < purchase_ts OR carrier_ts < approved_ts
         OR delivered_customer_ts < purchase_ts OR delivered_customer_ts < carrier_ts
-        OR CAST(estimated_date AS TIMESTAMP) < purchase_ts)                  AS ts_sequence_violation,
-    (carrier_ts < purchase_ts OR carrier_ts < approved_ts OR delivered_customer_ts < carrier_ts)
+        OR CAST(estimated_date AS TIMESTAMP) < purchase_ts, FALSE)           AS ts_sequence_violation,
+    coalesce(carrier_ts < purchase_ts OR carrier_ts < approved_ts OR delivered_customer_ts < carrier_ts, FALSE)
                                                                              AS carrier_leg_unreliable,
 
     -- items / seller attribution

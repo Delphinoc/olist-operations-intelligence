@@ -122,6 +122,7 @@ def compute_reference(raw_dir: Path) -> dict:
             | (t.order_delivered_customer_date < t.order_purchase_timestamp)
             | (t.order_delivered_customer_date < t.order_delivered_carrier_date)
             | (t.order_estimated_delivery_date < t.order_purchase_timestamp))
+    o["ts_violation"] = viol.fillna(False).astype(bool)      # per-order flag (NaN comparisons = no violation)
     ref["ts_violations"] = int(viol.sum())
     ref["status_date_conflicts"] = int(((t.order_status == "delivered") != t.order_delivered_customer_date.notna()).sum())
 

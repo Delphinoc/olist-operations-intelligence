@@ -2,8 +2,9 @@
 
 E-commerce operations analytics on the public Olist Brazilian marketplace dataset: delivery reliability,
 customer satisfaction and operational risk concentration. This README currently documents **Phase 1: the
-analytical data model** only. See `reports/project_blueprint.md` for the full project design and
-`reports/data_model_validation.md` for the validation of the model.
+analytical data model** and **Workstream 1 (delivery reliability)**. See `reports/project_blueprint.md` for the full
+project design, `reports/data_model_validation.md` for the validation of the model and
+`reports/delivery_reliability_findings.md` for the delivery-reliability findings.
 
 ## Rebuild the model from the raw CSVs
 
@@ -22,6 +23,10 @@ python -m pytest
 
 # 4. regenerate the validation report
 python scripts/build_validation_report.py        # writes reports/data_model_validation.md
+
+# 5. delivery-reliability workstream (tables, figures, stats JSON, then the findings report)
+python analysis/delivery_reliability.py
+python analysis/build_delivery_report.py         # writes reports/delivery_reliability_findings.md
 ```
 
 All paths are relative to the project root; no absolute paths are stored.
@@ -51,8 +56,10 @@ Check the licence and terms on the Kaggle page before reusing or redistributing 
 | `scripts/build_model.py` | Runs the SQL in order, then ~33 structural assertions (fails and removes the DB on violation) |
 | `scripts/build_validation_report.py` | Runs the tests and writes the validation report |
 | `scripts/profile_dataset.py`, `validate_kpis.py`, `build_*_report.py` | Earlier phases (profiling and KPI validation) |
+| `sql/analysis/delivery/` | Primary KPI queries for the delivery-reliability workstream (DuckDB SQL) |
+| `analysis/` | Python statistics and charts (`delivery_reliability.py`) and the findings-report generator |
 | `tests/` | pytest suite, independent pandas reference (`reference_pandas.py`) and documented anchors (`anchors.py`) |
-| `reports/` | Feasibility, KPI validation, blueprint and model validation reports |
+| `reports/` | Feasibility, KPI validation, blueprint, model validation and delivery-reliability reports; `tables/` (CSV) and `figures/` (PNG) hold analysis outputs |
 
 ## Key modelling rules (details in the blueprint)
 

@@ -83,6 +83,12 @@ def test_timestamp_anomalies_preserved_not_deleted(con):
     assert q1(con, "SELECT count(*) FROM fact_orders WHERE is_delivered_dated AND lead_time_days <= 0") == 0
 
 
+def test_anomaly_flags_are_never_null(con):
+    # regression test: NULL flags made `WHERE NOT ts_sequence_violation` drop orders with missing timestamps
+    assert q1(con, "SELECT count(*) FROM fact_orders WHERE ts_sequence_violation IS NULL OR carrier_leg_unreliable IS NULL") == 0
+    assert q1(con, "SELECT count(*) FROM fact_orders WHERE NOT ts_sequence_violation") == ANCHORS["orders"] - ANCHORS["ts_violations"]
+
+
 def test_window_late_rate_is_stable_vs_all_months(con):
     r = q1(con, "SELECT avg(is_late_calendar::INT) FROM fact_orders WHERE is_delivered_dated")
     assert math.isclose(r, 0.0677, abs_tol=5e-5)

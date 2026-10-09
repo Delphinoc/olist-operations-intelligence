@@ -303,6 +303,8 @@ def main() -> int:
         [9, "`dim_state` includes names without diacritics; `dim_date` spans 2016-01-01..2018-12-31", "Convenience; no analytical effect"],
         [10, "`dim_seller` carries `seller_macro_region`", "Convenience for display grouping"],
         [11, "Payments are not modelled", "As designed (blueprint 4.1)"],
+        [12, "Post-release fix (found during the delivery-reliability workstream): `ts_sequence_violation` and `carrier_leg_unreliable` are now coalesced to FALSE",
+         "They were NULL for orders with missing timestamps and no confirmed violation, so `WHERE NOT ts_sequence_violation` silently dropped 15 delivered and all non-delivered orders. TRUE counts (1,382) and all populations were unchanged; a build assertion and a regression test were added"],
     ]))
 
     # ---------------------------------------------------------------- 9 issues

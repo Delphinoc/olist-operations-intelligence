@@ -1,0 +1,11 @@
+fulfilment_class,order_status,n_orders
+cancelled_unavailable,unavailable,602
+cancelled_unavailable,canceled,580
+delivered_late,delivered,6531
+delivered_on_time,delivered,89672
+delivered_status_no_date,delivered,8
+open_past_promise,shipped,1097
+open_past_promise,processing,299
+open_past_promise,invoiced,296
+open_past_promise,created,5
+open_past_promise,approved,2

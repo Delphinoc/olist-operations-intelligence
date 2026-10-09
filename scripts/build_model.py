@@ -98,6 +98,9 @@ BUILD_ASSERTIONS: dict[str, str] = {
         "SELECT abs((SELECT count(*) FROM v_single_seller_orders) - (SELECT count(*) FROM fact_orders WHERE is_seller_kpi_eligible))",
     "no multi-seller order in v_single_seller_orders":
         "SELECT count(*) FROM v_single_seller_orders v JOIN bridge_order_seller b USING (order_id) WHERE b.n_sellers_in_order <> 1",
+    "anomaly/status flags are never NULL":
+        "SELECT count(*) FROM fact_orders WHERE ts_sequence_violation IS NULL OR carrier_leg_unreliable IS NULL"
+        " OR has_status_date_conflict IS NULL OR in_window IS NULL OR is_delivered_dated IS NULL",
     "late flag consistent with promise_error_days":
         "SELECT count(*) FROM fact_orders WHERE is_delivered_dated AND (is_late_calendar <> (promise_error_days > 0))",
 }
