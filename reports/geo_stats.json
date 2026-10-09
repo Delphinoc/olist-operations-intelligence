@@ -1,0 +1,169 @@
+{
+  "population_all": {
+    "n_delivered": 96203,
+    "n_late": 6531,
+    "late_rate": 0.06788769580990198
+  },
+  "state_rank_stability": {
+    "n_reportable": 24,
+    "n_low_volume": 3,
+    "spearman_unadjusted_vs_oe": 0.9678260869565216,
+    "n_above_unadj": 15,
+    "n_above_adj": 15,
+    "n_below_unadj": 6,
+    "n_below_adj": 4,
+    "above_unadj_and_adj": 15,
+    "low_volume_states": [
+      "RR",
+      "AC",
+      "AP"
+    ],
+    "low_volume_orders": 187
+  },
+  "distance_quartiles_km": {
+    "q1": 183.77445533640412,
+    "q2": 433.9554672939902,
+    "q3": 798.9925112206873,
+    "n_no_distance": 471,
+    "n": 94931
+  },
+  "population_single_seller": {
+    "n_delivered": 94931,
+    "n_late": 6518,
+    "late_rate": 0.06866039544511277,
+    "n_sellers": 2925
+  },
+  "mh_cross_state": {
+    "rr_mh": 2.3748749103894893,
+    "rr_lo": 2.2041252484385088,
+    "rr_hi": 2.5588522448953888,
+    "rr_crude": 1.7871088168826523,
+    "n_exposed": 60782,
+    "n_unexposed": 34149,
+    "rate_exposed": 0.08158665394360172,
+    "rate_unexposed": 0.04565287416908255,
+    "strata_total": 96,
+    "strata_both_ge30": 58,
+    "strata_exposed_higher": 51
+  },
+  "mh_far_vs_near": {
+    "rr_mh": 2.848312919877381,
+    "rr_lo": 2.493580149446095,
+    "rr_hi": 3.2535094135003226,
+    "rr_crude": 1.9981429897864438,
+    "n_exposed": 23615,
+    "n_unexposed": 23615,
+    "rate_exposed": 0.09112852000846919,
+    "rate_unexposed": 0.04560660597078128,
+    "strata_total": 96,
+    "strata_both_ge30": 42,
+    "strata_exposed_higher": 35
+  },
+  "mh_cross_state_within_state": {
+    "rr_mh": 1.902696298331701,
+    "rr_lo": 1.711116757224009,
+    "rr_hi": 2.115725410554913,
+    "rr_crude": 1.7871088168826523,
+    "n_exposed": 60782,
+    "n_unexposed": 34149,
+    "rate_exposed": 0.08158665394360172,
+    "rate_unexposed": 0.04565287416908255,
+    "strata_total": 120,
+    "strata_both_ge30": 26,
+    "strata_exposed_higher": 21
+  },
+  "mh_far_vs_near_within_state": {
+    "rr_mh": 2.030931773375149,
+    "rr_lo": 1.677255426511761,
+    "rr_hi": 2.4591864798332828,
+    "rr_crude": 1.9981429897864438,
+    "n_exposed": 23615,
+    "n_unexposed": 23615,
+    "rate_exposed": 0.09112852000846919,
+    "rate_unexposed": 0.04560660597078128,
+    "strata_total": 119,
+    "strata_both_ge30": 20,
+    "strata_exposed_higher": 14
+  },
+  "mh_origin_sp_within_destination": {
+    "rr_mh": 1.2796951902355203,
+    "rr_lo": 1.208209307917357,
+    "rr_hi": 1.3554106636827363,
+    "rr_crude": 1.3514676932819738,
+    "n_exposed": 67346,
+    "n_unexposed": 27585,
+    "rate_exposed": 0.07427315653490928,
+    "rate_unexposed": 0.05495740438644191,
+    "strata_total": 120,
+    "strata_both_ge30": 78,
+    "strata_exposed_higher": 54
+  },
+  "lanes_pooled": {
+    "n_lanes_total": 408,
+    "n_lanes_reported": 70,
+    "n_lanes_pooled": 338,
+    "orders_pooled": 5109,
+    "late_pooled": 398,
+    "late_rate_pooled": 0.07790174202387942,
+    "pooled_ci": [
+      0.07086556054976421,
+      0.08557219823127611
+    ],
+    "orders_reported": 89822,
+    "share_orders_reported": 0.9461819637420864
+  },
+  "half_rates": {
+    "h1": 0.03749298656721344,
+    "h2": 0.08327144448570367
+  },
+  "pooled_sellers": {
+    "n_sellers": 2311,
+    "n_orders": 15932,
+    "n_late": 1086,
+    "late_rate": 0.0681646999748933,
+    "late_ci": [
+      0.06435441206562649,
+      0.07218318241554462
+    ]
+  },
+  "seller_flag_overlap": {
+    "flagged_100_in_50": 36,
+    "flagged_100": 36,
+    "flagged_50_in_30": 57,
+    "flagged_50": 57,
+    "flagged_30": 79
+  },
+  "seller_persistence": {
+    "n_sellers_ge30_both_halves": 157,
+    "spearman_h1_vs_h2": 0.34922761906817856,
+    "flagged50_n": 57,
+    "flagged50_above_half_rate_in_both_halves": 26,
+    "flagged50_with_both_halves_observed": 44
+  },
+  "seller_concentration": {
+    "ranked_sellers": 412,
+    "positive_excess_total": 1012.7193856590576,
+    "top10_share_of_positive_excess": 0.30966186437095566,
+    "top25_share_of_positive_excess": 0.5111438227263544,
+    "n_with_positive_excess": 166,
+    "top10_share_of_all_late": 0.13194231359312672
+  },
+  "period_breadth": {
+    "states_compared": 18,
+    "states_higher_in_high_delay": 18,
+    "min_rate_ratio": 1.3028254044916687,
+    "max_rate_ratio": 5.499534161490683,
+    "median_rate_ratio": 4.199987230685927
+  },
+  "period_seller_breadth": {
+    "sellers_compared": 152,
+    "sellers_higher_in_high_delay": 139,
+    "spearman_rate_high_vs_other": 0.3107900393622107
+  },
+  "strata_note": {
+    "strata_mp": "purchase month x promised-lead group (100 cells)",
+    "strata_s2": "month x promised group x distance band (+unknown)"
+  },
+  "seller_reference_rate": 0.06866039544511277,
+  "ss_frame_rows": 94931
+}
