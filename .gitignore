@@ -1,0 +1,59 @@
+# ---- Datasets (raw inputs are not redistributed; see README for how to obtain them) ----
+data/raw/
+data/processed/
+data/*.csv
+*.parquet
+
+# ---- Generated databases ----
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.sqlite3
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Virtual environments ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# ---- Credentials and secrets ----
+.env
+.env.*
+*.pem
+*.key
+*.p12
+credentials*.json
+secrets*.json
+.aws/
+.kaggle/
+kaggle.json
+
+# ---- Editor / OS / temporary ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.log
+*.swp
+
+# ---- Claude Code local settings ----
+.claude/settings.local.json

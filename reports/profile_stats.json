@@ -1,0 +1,729 @@
+{
+  "tables": {
+    "customers": {
+      "rows": 99441,
+      "n_cols": 5,
+      "columns": {
+        "customer_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 99441
+        },
+        "customer_unique_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 96096
+        },
+        "customer_zip_code_prefix": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 14994
+        },
+        "customer_city": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 4119
+        },
+        "customer_state": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 27
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "customer_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        },
+        {
+          "key": [
+            "customer_unique_id"
+          ],
+          "unique": false,
+          "duplicated_rows": 6342
+        }
+      ]
+    },
+    "geolocation": {
+      "rows": 1000163,
+      "n_cols": 5,
+      "columns": {
+        "geolocation_zip_code_prefix": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 19015
+        },
+        "geolocation_lat": {
+          "dtype": "float64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 717360
+        },
+        "geolocation_lng": {
+          "dtype": "float64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 717613
+        },
+        "geolocation_city": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 8011
+        },
+        "geolocation_state": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 27
+        }
+      },
+      "full_duplicate_rows": 261831,
+      "keys": [
+        {
+          "key": [
+            "geolocation_zip_code_prefix"
+          ],
+          "unique": false,
+          "duplicated_rows": 999120
+        }
+      ]
+    },
+    "order_items": {
+      "rows": 112650,
+      "n_cols": 7,
+      "columns": {
+        "order_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 98666
+        },
+        "order_item_id": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 21
+        },
+        "product_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 32951
+        },
+        "seller_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 3095
+        },
+        "shipping_limit_date": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 93318
+        },
+        "price": {
+          "dtype": "float64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 5968
+        },
+        "freight_value": {
+          "dtype": "float64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 6999
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "order_id",
+            "order_item_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        },
+        {
+          "key": [
+            "order_id"
+          ],
+          "unique": false,
+          "duplicated_rows": 23787
+        }
+      ]
+    },
+    "payments": {
+      "rows": 103886,
+      "n_cols": 5,
+      "columns": {
+        "order_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 99440
+        },
+        "payment_sequential": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 29
+        },
+        "payment_type": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 5
+        },
+        "payment_installments": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 24
+        },
+        "payment_value": {
+          "dtype": "float64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 29077
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "order_id",
+            "payment_sequential"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        },
+        {
+          "key": [
+            "order_id"
+          ],
+          "unique": false,
+          "duplicated_rows": 7407
+        }
+      ]
+    },
+    "reviews": {
+      "rows": 99224,
+      "n_cols": 7,
+      "columns": {
+        "review_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 98410
+        },
+        "order_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 98673
+        },
+        "review_score": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 5
+        },
+        "review_comment_title": {
+          "dtype": "str",
+          "missing": 87656,
+          "missing_pct": 88.34,
+          "nunique": 4527
+        },
+        "review_comment_message": {
+          "dtype": "str",
+          "missing": 58247,
+          "missing_pct": 58.7,
+          "nunique": 36159
+        },
+        "review_creation_date": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 636
+        },
+        "review_answer_timestamp": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 98248
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "review_id"
+          ],
+          "unique": false,
+          "duplicated_rows": 1603
+        },
+        {
+          "key": [
+            "order_id"
+          ],
+          "unique": false,
+          "duplicated_rows": 1098
+        },
+        {
+          "key": [
+            "review_id",
+            "order_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        }
+      ]
+    },
+    "orders": {
+      "rows": 99441,
+      "n_cols": 8,
+      "columns": {
+        "order_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 99441
+        },
+        "customer_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 99441
+        },
+        "order_status": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 8
+        },
+        "order_purchase_timestamp": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 98875
+        },
+        "order_approved_at": {
+          "dtype": "str",
+          "missing": 160,
+          "missing_pct": 0.16,
+          "nunique": 90733
+        },
+        "order_delivered_carrier_date": {
+          "dtype": "str",
+          "missing": 1783,
+          "missing_pct": 1.79,
+          "nunique": 81018
+        },
+        "order_delivered_customer_date": {
+          "dtype": "str",
+          "missing": 2965,
+          "missing_pct": 2.98,
+          "nunique": 95664
+        },
+        "order_estimated_delivery_date": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 459
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "order_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        }
+      ]
+    },
+    "products": {
+      "rows": 32951,
+      "n_cols": 9,
+      "columns": {
+        "product_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 32951
+        },
+        "product_category_name": {
+          "dtype": "str",
+          "missing": 610,
+          "missing_pct": 1.85,
+          "nunique": 73
+        },
+        "product_name_lenght": {
+          "dtype": "float64",
+          "missing": 610,
+          "missing_pct": 1.85,
+          "nunique": 66
+        },
+        "product_description_lenght": {
+          "dtype": "float64",
+          "missing": 610,
+          "missing_pct": 1.85,
+          "nunique": 2960
+        },
+        "product_photos_qty": {
+          "dtype": "float64",
+          "missing": 610,
+          "missing_pct": 1.85,
+          "nunique": 19
+        },
+        "product_weight_g": {
+          "dtype": "float64",
+          "missing": 2,
+          "missing_pct": 0.01,
+          "nunique": 2204
+        },
+        "product_length_cm": {
+          "dtype": "float64",
+          "missing": 2,
+          "missing_pct": 0.01,
+          "nunique": 99
+        },
+        "product_height_cm": {
+          "dtype": "float64",
+          "missing": 2,
+          "missing_pct": 0.01,
+          "nunique": 102
+        },
+        "product_width_cm": {
+          "dtype": "float64",
+          "missing": 2,
+          "missing_pct": 0.01,
+          "nunique": 95
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "product_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        }
+      ]
+    },
+    "sellers": {
+      "rows": 3095,
+      "n_cols": 4,
+      "columns": {
+        "seller_id": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 3095
+        },
+        "seller_zip_code_prefix": {
+          "dtype": "int64",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 2246
+        },
+        "seller_city": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 611
+        },
+        "seller_state": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 23
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "seller_id"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        }
+      ]
+    },
+    "category_translation": {
+      "rows": 71,
+      "n_cols": 2,
+      "columns": {
+        "product_category_name": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 71
+        },
+        "product_category_name_english": {
+          "dtype": "str",
+          "missing": 0,
+          "missing_pct": 0.0,
+          "nunique": 71
+        }
+      },
+      "full_duplicate_rows": 0,
+      "keys": [
+        {
+          "key": [
+            "product_category_name"
+          ],
+          "unique": true,
+          "duplicated_rows": 0
+        }
+      ]
+    }
+  },
+  "relationships": {
+    "orders_customer_id_not_in_customers": 0,
+    "customers_without_orders": 0,
+    "customers_rows": 99441,
+    "customers_unique_ids": 96096,
+    "unique_customers_with_multiple_customer_ids": 2997,
+    "orders_without_items": 775,
+    "items_order_not_in_orders": 0,
+    "items_product_not_in_products": 0,
+    "items_seller_not_in_sellers": 0,
+    "products_never_sold": 0,
+    "sellers_without_items": 0,
+    "orders_without_items_by_status": {
+      "unavailable": 603,
+      "canceled": 164,
+      "created": 5,
+      "invoiced": 2,
+      "shipped": 1
+    },
+    "orders_with_multiple_items": 9803,
+    "max_items_per_order": 21,
+    "orders_with_multiple_sellers": 1278,
+    "orders_with_items": 98666,
+    "row_multiplication_orders_x_items": 113425,
+    "orders_with_multiple_payment_rows": 2961,
+    "orders_without_payments": 1,
+    "payments_order_not_in_orders": 0,
+    "row_multiplication_orders_x_payments": 103887,
+    "payment_value_zero_rows": 9,
+    "payment_type_counts": {
+      "credit_card": 76795,
+      "boleto": 19784,
+      "voucher": 5775,
+      "debit_card": 1529,
+      "not_defined": 3
+    },
+    "orders_without_reviews": 768,
+    "orders_with_multiple_reviews": 547,
+    "reviews_order_not_in_orders": 0,
+    "row_multiplication_orders_x_reviews": 99992,
+    "review_score_counts": {
+      "1": 11424,
+      "2": 3151,
+      "3": 8179,
+      "4": 19142,
+      "5": 57328
+    },
+    "reviews_with_comment_text": 40977,
+    "orders_payment_vs_items_gap_gt_1": 249,
+    "orders_compared_payment_vs_items": 98665,
+    "geo_rows": 1000163,
+    "geo_unique_zip_prefixes": 19015,
+    "geo_full_duplicate_rows": 261831,
+    "geo_prefixes_with_multiple_rows": 17972,
+    "geo_median_rows_per_prefix": 29.0,
+    "geo_max_rows_per_prefix": 1146,
+    "geo_prefixes_with_multiple_distinct_coords": 17781,
+    "geo_prefixes_with_multiple_city_spellings": 8556,
+    "geo_prefixes_with_multiple_states": 8,
+    "geo_coords_outside_brazil_bbox": 42,
+    "customer_zip_not_in_geo": 278,
+    "seller_zip_not_in_geo": 7,
+    "customer_zip_unique": 14994,
+    "seller_zip_unique": 2246,
+    "row_multiplication_customers_x_geo_raw": 15083733,
+    "customer_states": 27,
+    "seller_states": 23,
+    "order_share_top_state": {
+      "state": "SP",
+      "pct": 41.98
+    },
+    "order_share_sp_rj_mg": 66.61,
+    "seller_share_sp": 59.74,
+    "products_missing_category": 610,
+    "categories_without_translation": 2,
+    "product_missing_dimensions": 2,
+    "product_zero_weight": 4
+  },
+  "orders_profile": {
+    "orders": 99441,
+    "status_counts": {
+      "delivered": 96478,
+      "shipped": 1107,
+      "canceled": 625,
+      "unavailable": 609,
+      "invoiced": 314,
+      "processing": 301,
+      "created": 5,
+      "approved": 2
+    },
+    "status_pct": {
+      "delivered": 97.02,
+      "shipped": 1.11,
+      "canceled": 0.63,
+      "unavailable": 0.61,
+      "invoiced": 0.32,
+      "processing": 0.3,
+      "created": 0.01,
+      "approved": 0.0
+    },
+    "timestamp_missing": {
+      "order_purchase_timestamp": 0,
+      "order_approved_at": 160,
+      "order_delivered_carrier_date": 1783,
+      "order_delivered_customer_date": 2965,
+      "order_estimated_delivery_date": 0
+    },
+    "timestamp_unparseable_extra": {
+      "order_purchase_timestamp": 0,
+      "order_approved_at": 0,
+      "order_delivered_carrier_date": 0,
+      "order_delivered_customer_date": 0,
+      "order_estimated_delivery_date": 0
+    },
+    "timestamp_ranges": {
+      "order_purchase_timestamp": [
+        "2016-09-04",
+        "2018-10-17"
+      ],
+      "order_approved_at": [
+        "2016-09-15",
+        "2018-09-03"
+      ],
+      "order_delivered_carrier_date": [
+        "2016-10-08",
+        "2018-09-11"
+      ],
+      "order_delivered_customer_date": [
+        "2016-10-11",
+        "2018-10-17"
+      ],
+      "order_estimated_delivery_date": [
+        "2016-09-30",
+        "2018-11-12"
+      ]
+    },
+    "delivered_status_missing_customer_date": 8,
+    "non_delivered_with_customer_date": 6,
+    "delivered_status_missing_approved": 14,
+    "delivered_status_missing_carrier": 2,
+    "delivered_orders": 96478,
+    "delivered_with_both_dates": 96470,
+    "approved_before_purchase": 0,
+    "carrier_before_purchase": 166,
+    "carrier_before_approved": 1359,
+    "customer_before_purchase": 0,
+    "customer_before_carrier": 23,
+    "estimated_before_purchase": 0,
+    "any_sequence_violation_checked_pairs": 1382,
+    "delivery_days_describe": {
+      "count": 96470.0,
+      "mean": 12.56,
+      "std": 9.55,
+      "min": 0.53,
+      "50%": 10.22,
+      "95%": 29.27,
+      "99%": 46.05,
+      "max": 209.63
+    },
+    "delivery_days_gt_60": 306,
+    "late_pct_delivered": 8.11,
+    "estimated_days_median": 23.2,
+    "months_span": [
+      "2016-09",
+      "2018-10"
+    ],
+    "months_total": 26,
+    "months_with_zero_orders": [
+      "2016-11"
+    ],
+    "monthly_orders": {
+      "2016-09": 4,
+      "2016-10": 324,
+      "2016-11": 0,
+      "2016-12": 1,
+      "2017-01": 800,
+      "2017-02": 1780,
+      "2017-03": 2682,
+      "2017-04": 2404,
+      "2017-05": 3700,
+      "2017-06": 3245,
+      "2017-07": 4026,
+      "2017-08": 4331,
+      "2017-09": 4285,
+      "2017-10": 4631,
+      "2017-11": 7544,
+      "2017-12": 5673,
+      "2018-01": 7269,
+      "2018-02": 6728,
+      "2018-03": 7211,
+      "2018-04": 6939,
+      "2018-05": 6873,
+      "2018-06": 6167,
+      "2018-07": 6292,
+      "2018-08": 6512,
+      "2018-09": 16,
+      "2018-10": 4
+    },
+    "months_lt_100_orders": [
+      "2016-09",
+      "2016-12",
+      "2018-09",
+      "2018-10"
+    ],
+    "peak_month": {
+      "month": "2017-11",
+      "orders": 7544
+    },
+    "canceled_or_unavailable": 1234,
+    "reviews_created_before_delivery": 5127,
+    "reviews_for_undelivered_orders": 2863,
+    "reviews_created_before_purchase": 64,
+    "review_answer_before_creation": 0,
+    "delivered_orders_with_review_pct": 99.33,
+    "mean_score_on_time": 4.29,
+    "mean_score_late": 2.57
+  },
+  "feasibility_inputs": {
+    "delivered_with_date_multi_seller_orders": 1275,
+    "orders_multi_seller_pct_of_items_orders": 1.3,
+    "sellers_with_delivered_orders": 2970,
+    "sellers_ge_10_delivered_orders": 1237,
+    "sellers_ge_30_delivered_orders": 627,
+    "sellers_ge_100_delivered_orders": 210,
+    "top_10pct_sellers_share_of_seller_orders": 67.82,
+    "item_rows": 112650,
+    "item_rows_with_both_zip_centroids": 112096,
+    "item_rows_with_both_zip_centroids_pct": 99.51,
+    "geo_zip_median_coord_sd_km": 0.72,
+    "same_state_item_pct": 36.18
+  }
+}

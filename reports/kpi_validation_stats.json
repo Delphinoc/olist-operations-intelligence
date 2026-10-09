@@ -1,0 +1,279 @@
+{
+  "q1": {
+    "denominator": 96470,
+    "late_calendar_n": 6534,
+    "late_calendar_pct": 6.77,
+    "late_exact_n": 7826,
+    "late_exact_pct": 8.11,
+    "late_exact_but_not_calendar": 1292,
+    "estimated_has_nonmidnight_time": 0,
+    "estimated_time_values": [
+      "00:00:00"
+    ]
+  },
+  "q2": {
+    "orders_with_multiple_review_rows": 547,
+    "rows_in_those_orders": 1098,
+    "max_rows_per_order": 3,
+    "exact_duplicate_rows_whole_table": 0,
+    "exact_duplicate_rows_within_multi_orders": 0,
+    "repeated_review_id_within_same_order": 0,
+    "review_ids_appearing_in_multiple_orders": 789,
+    "rows_with_shared_review_id_across_orders": 1603,
+    "classification_of_multi_review_orders": {
+      "same_score_and_text": 225,
+      "same_score_different_text": 120,
+      "different_score": 202
+    },
+    "multi_orders_with_distinct_creation_dates": 392,
+    "multi_orders_with_identical_creation_date": 155,
+    "different_score_later_higher": 83,
+    "different_score_later_lower": 119,
+    "different_score_ordering_by_creation_date_is_ambiguous_when_dates_tie": true,
+    "delivered_with_date_denominator": 96470,
+    "delivered_zero_reviews": 646,
+    "delivered_exactly_one_review": 95299,
+    "delivered_multiple_reviews_ambiguous": 525,
+    "all_delivered_status_orders": 96478,
+    "all_delivered_exactly_one_review": 95307,
+    "all_delivered_multiple_reviews": 525
+  },
+  "q3": {
+    "population": 95299,
+    "excluded_zero_reviews": 646,
+    "excluded_multiple_reviews": 525,
+    "on_time_n": 88946,
+    "on_time_mean": 4.291,
+    "late_n": 6353,
+    "late_mean": 2.273,
+    "mean_difference": 2.019,
+    "late_share_1_2_star_pct": 62.36,
+    "ontime_share_1_2_star_pct": 9.25,
+    "missing_review_rate_late_pct": 2.34,
+    "missing_review_rate_ontime_pct": 0.55,
+    "multi_review_rate_late_pct": 0.43,
+    "multi_review_rate_ontime_pct": 0.55,
+    "late_total_n": 6534,
+    "ontime_total_n": 89936,
+    "reviews_created_before_delivery_date_n": 4940
+  },
+  "q4": {
+    "all_orders": 99441,
+    "orders_with_items": 98666,
+    "multi_seller_orders": 1278,
+    "multi_seller_pct_all_orders": 1.29,
+    "multi_seller_pct_orders_with_items": 1.3,
+    "single_seller_orders": 97388,
+    "delivered_with_date_denominator": 96470,
+    "delivered_exactly_one_seller": 95195,
+    "delivered_multi_seller": 1275,
+    "delivered_no_items": 0,
+    "delivered_multi_seller_pct": 1.32,
+    "all_delivered_status_exactly_one_seller": 95203
+  },
+  "q5": {
+    "pair_counts": {
+      "approved_lt_purchase": 0,
+      "carrier_lt_purchase": 166,
+      "carrier_lt_approved": 1359,
+      "customer_lt_purchase": 0,
+      "customer_lt_carrier": 23,
+      "estimated_lt_purchase": 0,
+      "estimated_lt_approved": 12
+    },
+    "orders_with_any_of_five_checked": 1382,
+    "carrier_lt_purchase_or_approved": 1359,
+    "carrier_lt_purchase_and_approved_both": 166,
+    "customer_lt_carrier_only_violation": 23,
+    "violations_inside_primary_population": 1373,
+    "violations_outside_primary_population": 9,
+    "violations_involving_purchase_or_customer_delivery_in_pop": 165,
+    "carrier_lt_approved_gap_hours_median": 17.17,
+    "carrier_lt_approved_gap_hours_p95": 86.84,
+    "primary_kpi_inputs": {
+      "purchase_to_delivery_nonpositive": 0,
+      "estimated_before_purchase_in_pop": 0
+    },
+    "late_rate_calendar_all_pct": 6.77,
+    "late_rate_calendar_excl_violations_pct": 6.85,
+    "late_rate_calendar_excl_violations_denominator": 95097,
+    "median_days_all": 10.217,
+    "median_days_excl_violations": 10.272,
+    "mean_days_all": 12.558,
+    "mean_days_excl_violations": 12.618,
+    "status_conflicts": {
+      "delivered_status_no_customer_date": 8,
+      "non_delivered_with_customer_date": 6
+    }
+  },
+  "q6_months": {
+    "2016-09": {
+      "orders": 4,
+      "delivered_with_date": 1,
+      "delivered_pct": 25.0
+    },
+    "2016-10": {
+      "orders": 324,
+      "delivered_with_date": 265,
+      "delivered_pct": 81.8
+    },
+    "2016-12": {
+      "orders": 1,
+      "delivered_with_date": 1,
+      "delivered_pct": 100.0
+    },
+    "2017-01": {
+      "orders": 800,
+      "delivered_with_date": 750,
+      "delivered_pct": 93.8
+    },
+    "2017-02": {
+      "orders": 1780,
+      "delivered_with_date": 1653,
+      "delivered_pct": 92.9
+    },
+    "2017-03": {
+      "orders": 2682,
+      "delivered_with_date": 2546,
+      "delivered_pct": 94.9
+    },
+    "2017-04": {
+      "orders": 2404,
+      "delivered_with_date": 2303,
+      "delivered_pct": 95.8
+    },
+    "2017-05": {
+      "orders": 3700,
+      "delivered_with_date": 3545,
+      "delivered_pct": 95.8
+    },
+    "2017-06": {
+      "orders": 3245,
+      "delivered_with_date": 3135,
+      "delivered_pct": 96.6
+    },
+    "2017-07": {
+      "orders": 4026,
+      "delivered_with_date": 3872,
+      "delivered_pct": 96.2
+    },
+    "2017-08": {
+      "orders": 4331,
+      "delivered_with_date": 4193,
+      "delivered_pct": 96.8
+    },
+    "2017-09": {
+      "orders": 4285,
+      "delivered_with_date": 4150,
+      "delivered_pct": 96.8
+    },
+    "2017-10": {
+      "orders": 4631,
+      "delivered_with_date": 4478,
+      "delivered_pct": 96.7
+    },
+    "2017-11": {
+      "orders": 7544,
+      "delivered_with_date": 7288,
+      "delivered_pct": 96.6
+    },
+    "2017-12": {
+      "orders": 5673,
+      "delivered_with_date": 5513,
+      "delivered_pct": 97.2
+    },
+    "2018-01": {
+      "orders": 7269,
+      "delivered_with_date": 7069,
+      "delivered_pct": 97.2
+    },
+    "2018-02": {
+      "orders": 6728,
+      "delivered_with_date": 6555,
+      "delivered_pct": 97.4
+    },
+    "2018-03": {
+      "orders": 7211,
+      "delivered_with_date": 7003,
+      "delivered_pct": 97.1
+    },
+    "2018-04": {
+      "orders": 6939,
+      "delivered_with_date": 6798,
+      "delivered_pct": 98.0
+    },
+    "2018-05": {
+      "orders": 6873,
+      "delivered_with_date": 6749,
+      "delivered_pct": 98.2
+    },
+    "2018-06": {
+      "orders": 6167,
+      "delivered_with_date": 6096,
+      "delivered_pct": 98.9
+    },
+    "2018-07": {
+      "orders": 6292,
+      "delivered_with_date": 6156,
+      "delivered_pct": 97.9
+    },
+    "2018-08": {
+      "orders": 6512,
+      "delivered_with_date": 6351,
+      "delivered_pct": 97.5
+    },
+    "2018-09": {
+      "orders": 16,
+      "delivered_with_date": 0,
+      "delivered_pct": 0.0
+    },
+    "2018-10": {
+      "orders": 4,
+      "delivered_with_date": 0,
+      "delivered_pct": 0.0
+    }
+  },
+  "q6_latest_purchase": "2018-10-17 17:30:18",
+  "q6_latest_customer_delivery": "2018-10-17 13:22:46",
+  "q6_window_candidates": {
+    "2017-01..2018-08": {
+      "n": 96203,
+      "late_calendar_pct": 6.79
+    },
+    "2017-01..2018-07": {
+      "n": 89852,
+      "late_calendar_pct": 6.83
+    },
+    "all": {
+      "n": 96470,
+      "late_calendar_pct": 6.77
+    }
+  },
+  "q6_state_n": {
+    "states": 27,
+    "ge_30": 27,
+    "ge_100": 24,
+    "ge_300": 21,
+    "min": 40,
+    "below_100": {
+      "AC": 80,
+      "AP": 67,
+      "RR": 40
+    }
+  },
+  "q6_seller_n": {
+    "window_single_seller_delivered_orders": 94931,
+    "sellers": 2925,
+    "ge_30": 614,
+    "ge_50": 412,
+    "ge_100": 201,
+    "orders_in_sellers_ge_30_pct": 83.22,
+    "orders_in_sellers_ge_50_pct": 75.14
+  },
+  "q6_ci_halfwidth_pp_at_p08": {
+    "30": 9.7,
+    "50": 7.5,
+    "100": 5.3,
+    "300": 3.1
+  }
+}
