@@ -1,0 +1,7 @@
+factor,levels,min_n,min_events,levels_with_lt_50_events
+customer state,25,143,18,4
+product category,28,594,66,0
+promised-lead group,5,8198,1134,0
+item count,3,2181,678,0
+purchase month,20,735,89,0
+purchase month x late,40,21,15,4

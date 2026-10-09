@@ -1,0 +1,157 @@
+{
+  "seed": 20241001,
+  "n_boot": 1000,
+  "populations": {
+    "delivered_window": 96203,
+    "one_review_p0": 95037,
+    "no_review": 643,
+    "multi_review": 523,
+    "p1_after_removing_early": 90103,
+    "early_reviews": 4934,
+    "p1b_after_removing_same_day": 86968,
+    "n_customers_p0": 92335
+  },
+  "overall": {
+    "n": 95037,
+    "mean_score": 4.157044098614224,
+    "n_low": 12145,
+    "low_share": 0.12779233351221103,
+    "low_ci": [
+      0.12568478729871438,
+      0.12992996827293882
+    ]
+  },
+  "low_diff_newcombe_iid": [
+    0.5313311816155357,
+    0.5191905146028459,
+    0.5433186662052497
+  ],
+  "no_review_rate_diff": [
+    0.017962375040432146,
+    0.014527406898995256,
+    0.02194729177284434
+  ],
+  "worst_case_bounds": {
+    "unknown_on_time": 985,
+    "unknown_late": 181,
+    "n_on_time": 89672,
+    "n_late": 6531,
+    "low_share_on_time": [
+      0.09127709875992505,
+      0.10226157551967169
+    ],
+    "low_share_late": [
+      0.6063389986219568,
+      0.6340529781044251
+    ],
+    "low_diff_bounds": [
+      0.5040774231022851,
+      0.5427758793445
+    ],
+    "mean_diff_bounds": [
+      -2.062254044167622,
+      -1.9074602191987622
+    ]
+  },
+  "scenario_note": {
+    "n_missing_late": 153,
+    "n_missing_on_time": 490
+  },
+  "early_review_rates": {
+    "late": [
+      4725,
+      6350,
+      0.7440944881889764,
+      0.7332162908143146,
+      0.7546775321731062
+    ],
+    "on_time": [
+      209,
+      88687,
+      0.0023566024332765793,
+      0.002058320346224926,
+      0.002697993292050293
+    ],
+    "diff": [
+      0.7417378857556998,
+      0.7308543327586058,
+      0.752325132431464
+    ]
+  },
+  "early_review_scores": {
+    "mean": 1.9278475881637616,
+    "low_share": 0.728009728415079,
+    "n": 4934
+  },
+  "early_late_orders_timing": {
+    "n_early_late_orders": 4725,
+    "after_promise": 4670,
+    "on_or_before_promise": 55,
+    "after_promise_share": 0.9883597883597883,
+    "after_promise_ci": [
+      0.9848803441924368,
+      0.9910457975883695
+    ],
+    "low_share_after_promise": 0.7580299785867237,
+    "low_share_on_or_before_promise": 0.23636363636363636
+  },
+  "c8_lowest_rule": {
+    "low_score_orders": 12266,
+    "of_which_late": 3984,
+    "share_late": 0.3248002608837437,
+    "share_lo": 0.3165687783966616,
+    "share_hi": 0.33314144692086284
+  },
+  "regression_extra": {
+    "se_cluster_vs_naive_late": [
+      0.031164563712361835,
+      0.030914242433176715
+    ],
+    "ame_late_pp": [
+      51.70725015595139,
+      50.41858179395472,
+      52.99591851794806
+    ],
+    "ols_score_diff": [
+      -1.9865032726290306,
+      -2.026722215623475,
+      -1.9462843296345862
+    ],
+    "collinearity": {
+      "vif_late": 1.067552975007102,
+      "max_vif": 10.615463214302661,
+      "max_vif_term": "C(month)[T.2017-11]",
+      "n_terms_vif_gt_5": 16,
+      "n_terms": 52,
+      "terms_vif_gt_5": [
+        "C(month)[T.2017-05]",
+        "C(month)[T.2017-06]",
+        "C(month)[T.2017-07]",
+        "C(month)[T.2017-08]",
+        "C(month)[T.2017-09]",
+        "C(month)[T.2017-10]",
+        "C(month)[T.2017-11]",
+        "C(month)[T.2017-12]",
+        "C(month)[T.2018-01]",
+        "C(month)[T.2018-02]",
+        "C(month)[T.2018-03]",
+        "C(month)[T.2018-04]",
+        "C(month)[T.2018-05]",
+        "C(month)[T.2018-06]",
+        "C(month)[T.2018-07]",
+        "C(month)[T.2018-08]"
+      ],
+      "condition_number_standardised": 15.237889062829248
+    },
+    "missingness": {
+      "review_score": 0,
+      "customer_state": 0,
+      "promised_lead_days": 0,
+      "items_value": 0,
+      "freight_value": 0,
+      "n_items": 0,
+      "order_category": 0,
+      "purchase_month": 0
+    }
+  }
+}

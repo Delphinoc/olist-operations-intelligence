@@ -1,0 +1,5 @@
+created_before_delivery,is_late,n,sum_score,n_low
+False,False,88478,379825.0,8146
+False,True,1625,5736.0,407
+True,False,209,816.0,39
+True,True,4725,8696.0,3553

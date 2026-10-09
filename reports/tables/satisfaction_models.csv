@@ -1,0 +1,5 @@
+model,spec,n,events,odds_ratio,or_lo,or_hi,converged,warnings
+M0 unadjusted,low ~ late,95037,12145,16.296159675700277,15.412680019888464,17.230281809084204,True,
+M1 + promised-lead group + purchase month,"low ~ late + C(promised_g, Treatment('p3_22_28')) + C(month)",95037,12145,15.766872455555658,14.886106363191882,16.69975082567233,True,
+"M2 + state, order value, freight share, item count (primary)","low ~ late + C(promised_g, Treatment('p3_22_28')) + C(month) + C(state_g, Treatment('SP')) + log_value + freight_share + C(items_g, Treatment('i1'))",95037,12145,17.46222236887731,16.427526998494262,18.56208850474382,True,
+M3 = M2 + product category (exploratory),"low ~ late + C(promised_g, Treatment('p3_22_28')) + C(month) + C(state_g, Treatment('SP')) + log_value + freight_share + C(items_g, Treatment('i1')) + C(category_g, Treatment('bed_bath_table'))",95037,12145,17.571125412660415,16.523645456203102,18.685008044125976,True,

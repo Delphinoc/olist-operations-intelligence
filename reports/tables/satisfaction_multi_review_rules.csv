@@ -1,0 +1,15 @@
+rule,is_late,n_units,sum_score,n_low
+1 primary: single-review orders only,False,88687,380641.0,8185
+1 primary: single-review orders only,True,6350,14432.0,3960
+2 lowest score per order,False,89182,382539.0,8282
+2 lowest score per order,True,6378,14477.0,3984
+3 highest score per order,False,89182,382885.0,8206
+3 highest score per order,True,6378,14504.0,3974
+4 mean score per order,False,89182,382712.1666666667,8215
+4 mean score per order,True,6378,14490.5,3977
+5 earliest-dated review (orders with distinct dates),False,89030,382048.0,8233
+5 earliest-dated review (orders with distinct dates),True,6375,14494.0,3975
+6 latest-dated review (orders with distinct dates; comparison only),False,89030,382006.0,8237
+6 latest-dated review (orders with distinct dates; comparison only),True,6375,14481.0,3977
+7 every review row as a unit (units = rows),False,89681,384797.0,8304
+7 every review row as a unit (units = rows),True,6406,14549.0,3998
