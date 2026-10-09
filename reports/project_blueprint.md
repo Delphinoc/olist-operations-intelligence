@@ -1,6 +1,6 @@
 # Project Blueprint: Olist Operations Intelligence
 
-**Status:** DESIGN ONLY (Revision 2, reviewer decisions incorporated). Nothing in this document has been implemented. No pipeline, EDA, model or dashboard exists yet.
+**Status:** DESIGN DOCUMENT (Revision 3). Revision 2 incorporated the first reviewer decisions; Revision 3 (after the Workstream 4 review) corrects the Operational Priorities design and the Power BI plan. At the time of Revision 3 the DuckDB data model and the four analysis workstreams are implemented and validated (see `reports/`); the Power BI dashboard and the optional ML extension are **not** built.
 **Inputs:** `reports/dataset_feasibility.md`, `reports/kpi_validation.md`, `reports/profile_stats.json`, `reports/kpi_validation_stats.json`.
 
 **Labelling convention used throughout**
@@ -13,6 +13,8 @@
 | **[TBC]** | Number or property not yet computed; must be established before it is relied on. |
 
 Where `kpi_validation.md` and `dataset_feasibility.md` disagree, `kpi_validation.md` is authoritative (it states this itself: late rate 6.77% not 8.11%; review means 4.291 / 2.273 not 4.29 / 2.57).
+
+**Revision 3 summary of changes (after the Workstream 4 review).** (a) The primary Power BI priority visual is *excess late orders versus late-delivery rate* (with order volume, Wilson intervals and evidence tier); the excess-late versus excess-low-score matrix is a secondary/appendix visual. (b) Customer-experience measures (low-score rate among on-time orders, review-timing limitations) stay on the Customer Experience page and out of the evidence tiers. (c) The minimum excess of 20 late orders is documented as an *operational screening policy*, not statistical significance. (d) Seller results are *secondary screening evidence*: only 2 of 8 Investigate sellers remain Investigate when the three high-delay months are excluded. (e) Lane labels are *seller state > customer state*; "Northeast-bound" is defined by the destination state only. No validated KPI definition or population was changed.
 
 **Revision 2 summary of changes.** Statistical scope reduced to a core set (Section 2.3); empirical-Bayes shrinkage, permutation tests and rank-stability analysis demoted to optional, justification-gated methods. Power BI reduced to four pages with a single-seller view for seller KPIs (Section 5). Delivered-only late rate is described as a *conditional observed rate*, not a lower bound (Section 2.1). Cancelled/unavailable outcomes are now separate from open past-promise orders (KPIs F1-F4). C8 renamed and its causal reading removed. Cohort-maturity 30 days is a sensitivity assumption. DuckDB fixed as the SQL engine. Severe lateness fixed at > 7 calendar days. Portfolio rate is the primary excess reference. Product category is exploratory; macro-regions are display-only. Phases and validation updated to match.
 
@@ -309,12 +311,14 @@ P3: since no-review rates differ (late 2.34% vs on-time 0.55%), recompute the ga
 1. Candidate segments: customer state, lane (seller_state × customer_state), seller (single-seller orders). Category is exploratory and not a tiering dimension.
 2. For each qualifying segment: n, observed late orders, late rate with Wilson interval, excess late orders against the portfolio rate (primary) and the adjusted expected rate (secondary), observed vs expected 1-2★ orders (P0 population), review coverage.
 3. **Evidence tier** (rules fixed before results are inspected):
-   - *Investigate*: meets minimum-N (R8), Wilson lower bound above the portfolio late rate, excess late orders ≥ a minimum set in advance, and point estimate above the portfolio rate in both halves of the window.
-   - *Watch*: point estimate above portfolio but interval overlaps it, or not consistent across halves.
+   - *Investigate*: meets minimum-N (R8), Wilson lower bound above the portfolio late rate, excess late orders ≥ a minimum set in advance (provisionally 20), and window-half consistency not 'inconsistent' (a half with fewer than 30 orders is 'unverified', not negative).
+   - *Watch*: positive excess with an interval above the reference or excess ≥ the minimum, but not Investigate; low-confidence sellers (30-49 orders) with a signal.
    - *Insufficient data*: below minimum-N; shown, not ranked.
    - *No signal*: everything else.
-4. **Two-axis priority matrix** (excess late orders × excess low-score orders), sized by volume.
-5. Within *Investigate*, order by absolute excess late orders (impact), not rate.
+   **The minimum excess (20 late orders; 10 and 30 reported as sensitivity) is an operational screening policy about how large a gap is worth a manager's attention. It is not a statistical significance level and has no probability interpretation.** Seller-level tiers are *secondary screening evidence* (only 2 of 8 Investigate sellers persist without the three high-delay months).
+4. **Primary priority view: excess late orders versus late-delivery rate**, with order volume (marker area), 95% Wilson intervals and evidence tier. The **two-axis matrix (excess late × excess low-score orders) is a secondary/appendix view**: its axes use different populations (delivered vs reviewed orders) and are strongly coupled.
+5. Within *Investigate*, order by absolute excess late orders (impact), not rate; rate is shown on the primary view's horizontal axis.
+6. **Customer-experience measures are separate from the tiers** (low-score rate among on-time orders with its interval, review coverage, share of reviews written before delivery, after-delivery excess).
 
 **KPI set**
 
@@ -328,7 +332,7 @@ P3: since no-review rates differ (late 2.34% vs on-time 0.55%), recompute the ga
 | P6 | Split-window consistency | Flag (yes/no): point estimate above portfolio rate in both window halves | Segment |
 | P7 | Coverage at k | Share of total positive excess late orders in the top-k Investigate segments | Portfolio |
 
-**Visualizations.** Priority matrix (scatter, size = n); ranked excess bars with Wilson whiskers; coverage curve; tier summary table.
+**Visualizations.** Primary: excess late orders vs late rate (scatter; size = n; Wilson bars; colour = tier); ranked excess bars with Wilson whiskers; tier summary table. Secondary/appendix: the excess-late vs excess-low-score matrix (all reviews and after-delivery reviews only). Lane labels read *seller state > customer state*; "Northeast-bound" means the destination state is in the Northeast.
 
 **Possible confounders.** Mix (category, distance, promise length); small-n noise; overlapping levels (a flagged seller may drive a flagged lane or state; overlap is reported and excess is never summed across levels).
 
@@ -410,8 +414,10 @@ dim_state ──────────────┤
 |---|---|---|
 | 1. Executive Overview | KPI cards (late rate, median lead time, severe-late rate, mean score, low-score share, cancelled/unavailable rate); fulfilment outcome mix; monthly late-rate trend with interval; top "Investigate" segments | D1, D2, D5, C1, C2, F1, F-mix |
 | 2. Delivery Performance | Promise-error distribution; lead time vs promise; severity bands; state map/tiles grouped by macro-region with n-masking; lane view; distance curve; fulfilment mix by cohort; exploratory category view (labelled) | D1-D6, F1-F4, G1-G5, L1, X1 |
-| 3. Customer Experience | Score by on-time/late; days-late bands; coverage panel; sensitivity forest plot (P0-P3, adjusted); C8 composition shown with its descriptive caveat | C1-C10 |
-| 4. Operational Priorities | Priority matrix; seller funnel plot and seller table with evidence tier and low-confidence tags; coverage curve; tier list | S1-S5, P1-P7 |
+| 3. Customer Experience | Score by on-time/late; days-late bands; coverage panel; sensitivity forest plot (P0-P3, adjusted); C8 composition shown with its descriptive caveat; **low-score rate among on-time orders (with interval) and share of reviews written before delivery, by candidate segment, labelled as feedback associations with the review-timing limitation** | C1-C10 |
+| 4. Operational Priorities | **Primary: excess late orders vs late rate (volume, Wilson intervals, evidence tier)**; tier list with threshold sensitivity (10/20/30) and a high-delay-months toggle view; lane and state candidate tables; seller funnel plot and seller table **marked as secondary screening evidence** with tier and low-confidence tags; **appendix visual: excess late vs excess low-score matrix** | S1-S5, P1-P7 |
+
+**Operational Priorities page rules [D].** (a) The page states that tiers are provisional evidence labels, that the 20-order minimum is an operational screening policy and not statistical significance, and that nothing implies cause. (b) No visual or measure sums excess late orders across state, lane and seller levels (they overlap). (c) Seller visuals carry the note that only 2 of 8 Investigate sellers remain Investigate without 2017-11, 2018-02 and 2018-03. (d) Customer-experience measures appear on the Customer Experience page and in the appendix visual only; they never feed the tier logic. (e) Lane direction is explicit (origin state, destination state); any "Northeast" grouping uses the destination region.
 
 **Accessible definitions and limitations [D].** The model is limited to four pages, so definitions are carried in the following ways rather than on a separate page: (a) a population subtitle on every page; (b) an "About this page" info button on every page that opens a bookmark overlay listing the page's KPI definitions, populations and top limitations (drawn from this document); (c) tooltips on every KPI card showing definition, numerator, denominator and n; (d) a persistent footer note "Delivered-only rates are conditional on observed delivery; see fulfilment mix". The full KPI dictionary is also published in the repository README.
 
@@ -510,7 +516,7 @@ Ordering rationale: WS3 follows WS1 for the lateness definition and day-late ban
 
 **Still open (minor; defaults proposed)**
 
-1. Minimum excess late orders for the *Investigate* tier: to be set from the window's size distribution of segments before results are inspected (proposed: a fixed small integer such as 20, adjustable).
+1. Minimum excess late orders for the *Investigate* tier: **provisionally 20, as an operational screening policy (not statistical significance); 10 and 30 reported as sensitivity.** To be revisited with carrier data or newer months.
 2. Exact regression covariate list for WS3 (proposed in 3.Methods); confirm or trim.
 3. Whether open non-terminal statuses are reported as one group (proposed) or by status.
 4. Whether to include text keyword counts (Q3.6) at all (proposed: skip unless time permits).

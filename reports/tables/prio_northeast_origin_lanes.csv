@@ -1,0 +1,4 @@
+segment,origin_state,destination_state,origin_region,destination_region,northeast_bound,n_delivered,n_late,late_rate,late_rate_lo,late_rate_hi,excess_late,tier
+MA>SP,MA,SP,Northeast,Southeast,False,123,25.0,0.2032520325203252,0.14163307280746557,0.28284532188527917,16.55477136025113,Watch
+BA>SP,BA,SP,Northeast,Southeast,False,135,5.0,0.037037037037037035,0.015921913773667362,0.08377063439070755,-4.269153385090224,No Signal
+PE>SP,PE,SP,Northeast,Southeast,False,104,2.0,0.019230769230769232,0.0052897115850640206,0.0674231291576782,-5.140681126291728,No Signal

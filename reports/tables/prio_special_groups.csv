@@ -2,6 +2,8 @@ group,n_orders,n_late,late_rate,excess_vs_ref
 All single-seller orders to RJ,12154,1490,0.12259338489386211,655.5015537600995
 SP>RJ lane,8031,1147,0.14282156643008342,595.5883641802994
 Other lanes into RJ,4123,343,0.0831918505942275,59.913189579800076
-Northeast lanes with an interval above the reference (11 lanes),6787,908,0.1337851775453072,442.00189611401964
+Northeast-bound lanes with an interval above the reference (11 lanes),6787,908,0.1337851775453072,442.00189611401964
 All single-seller orders to the Northeast region,8934,1149,0.12860980523841503,535.5880270933626
 "Northeast region, lanes not flagged",2147,241,0.11224965067536097,93.5861309793429
+Shipped FROM the Northeast (any destination; NOT Northeast-bound by itself),1514,127,0.08388375165125496,23.04816129609928
+Shipped from the Northeast to a non-Northeast destination (e.g. MA>SP),1086,87,0.08011049723756906,12.434810546607537

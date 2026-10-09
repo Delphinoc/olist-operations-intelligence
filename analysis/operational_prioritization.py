@@ -61,6 +61,8 @@ def load_frame(con) -> pd.DataFrame:
 # ------------------------------------------------------------------ evidence tiers
 def assign_tiers(d: pd.DataFrame, level: str, x: float, require_consistency: bool = True) -> pd.Series:
     """Provisional tier rules (see the findings report, Section 1). No weighting, no significance test.
+    The minimum excess `x` (20 late orders) is an OPERATIONAL SCREENING POLICY about how large a gap is worth a
+    manager's attention; it is not a statistical significance level and has no probability interpretation.
     Insufficient Data : n below the minimum volume (sellers 30-49 are low-confidence: Watch only if they show a signal).
     Investigate       : n >= minimum AND Wilson interval above the reference rate AND excess late >= x
                         AND window-half consistency is not 'inconsistent' ('unverified' does not block).
@@ -76,6 +78,22 @@ def assign_tiers(d: pd.DataFrame, level: str, x: float, require_consistency: boo
     watch = (eligible & (exc > 0) & (signal | (exc >= x)) & ~invest) | (low_conf & signal & (exc > 0))
     insufficient = ~eligible & ~watch
     return pd.Series(np.select([invest, watch, insufficient], TIERS[0:2] + ["Insufficient Data"], "No Signal"), index=d.index)
+
+
+def add_geography(d: pd.DataFrame, level: str, regions: dict) -> pd.DataFrame:
+    """Make lane direction explicit. A lane label is SELLER state > CUSTOMER state, so 'Northeast-bound' is defined by the
+    DESTINATION (customer) state only; a lane such as MA>SP originates in the Northeast but is delivered in the Southeast."""
+    d = d.copy()
+    if level == "state":
+        d["region"] = d.segment.map(regions)
+    elif level == "lane":
+        d["origin_state"] = d.segment.str.split(">").str[0]
+        d["destination_state"] = d.segment.str.split(">").str[1]
+        d["origin_region"] = d.origin_state.map(regions)
+        d["destination_region"] = d.destination_state.map(regions)
+        d["northeast_bound"] = d.destination_region.eq("Northeast")
+        d["northeast_origin"] = d.origin_region.eq("Northeast")
+    return d
 
 
 def rank_desc(values: pd.Series, mask: pd.Series) -> pd.Series:
@@ -121,6 +139,7 @@ def enrich(cand: pd.DataFrame, level: str, frame: pd.DataFrame, exclude_episodes
     d["excess_low_after"] = d.n_low_after - d.expected_low_after
     d["expected_low_ontime"] = d.n_rev_ontime * refs["low_ontime"]
     d["excess_low_ontime"] = d.n_low_ontime - d.expected_low_ontime
+    d = dr.add_wilson(d, "n_low_ontime", "n_rev_ontime", "low_ontime_rate")      # low-score rate among ON-TIME reviewed orders (customer-experience context)
     d["early_review_share"] = d.n_rev_early / d.n_rev.replace(0, np.nan)
     d["episode_late_share"] = d.late_ep / d.n_late.replace(0, np.nan)
     # --- stability across window halves; a half with < HALF_MIN_N orders is 'unverified', never a negative
@@ -201,8 +220,8 @@ def compute_all(con: duckdb.DuckDBPyConnection) -> dict:
     refs = {}
     for level in LEVELS:
         cand = load_candidates(con, level, False)
-        enr = enrich(cand, level, frame, False)
-        ex = enrich(load_candidates(con, level, True), level, frame, True)
+        enr = add_geography(enrich(cand, level, frame, False), level, regions)
+        ex = add_geography(enrich(load_candidates(con, level, True), level, frame, True), level, regions)
         tables[level], tables_ex[level] = enr, ex
         refs[level] = {k: float(v) for k, v in population_refs(cand).items()}
         refs[level].update(n_delivered=int(enr.n_delivered.sum()), n_late=int(enr.n_late.sum()), n_reviewed=int(enr.n_rev.sum()),
@@ -245,7 +264,7 @@ def compute_all(con: duckdb.DuckDBPyConnection) -> dict:
 
     # ---- special candidates: SP>RJ, Rio de Janeiro destination, high-rate Northeast lanes
     lanes = tables["lane"]
-    ne_signal = lanes[lanes.eligible & lanes.signal & lanes.segment.str.split(">").str[1].map(regions).eq("Northeast")]
+    ne_signal = lanes[lanes.eligible & lanes.signal & lanes.northeast_bound]        # destination (customer) state in the Northeast
     specials = [("state", "RJ"), ("lane", "SP>RJ")] + [("lane", s) for s in ne_signal.sort_values("excess_late", ascending=False).segment]
     srows = []
     for level, seg in specials:
@@ -265,11 +284,25 @@ def compute_all(con: duckdb.DuckDBPyConnection) -> dict:
     res["special_groups"] = pd.DataFrame([
         grp(os_.customer_state == "RJ", "All single-seller orders to RJ"), grp(os_.lane == "SP>RJ", "SP>RJ lane"),
         grp((os_.customer_state == "RJ") & (os_.lane != "SP>RJ"), "Other lanes into RJ"),
-        grp(os_.lane.isin(ne_lane_set), f"Northeast lanes with an interval above the reference ({len(ne_lane_set)} lanes)"),
+        grp(os_.lane.isin(ne_lane_set), f"Northeast-bound lanes with an interval above the reference ({len(ne_lane_set)} lanes)"),
         grp(os_.customer_state.map(regions).eq("Northeast"), "All single-seller orders to the Northeast region"),
         grp(os_.customer_state.map(regions).eq("Northeast") & ~os_.lane.isin(ne_lane_set), "Northeast region, lanes not flagged"),
+        grp(os_.lane.str.split(">").str[0].map(regions).eq("Northeast"), "Shipped FROM the Northeast (any destination; NOT Northeast-bound by itself)"),
+        grp(os_.lane.str.split(">").str[0].map(regions).eq("Northeast") & ~os_.customer_state.map(regions).eq("Northeast"),
+            "Shipped from the Northeast to a non-Northeast destination (e.g. MA>SP)"),
     ])
     res["special_ne_lanes"] = sorted(ne_lane_set)
+    # reconciliation of the Northeast-bound lanes: classification by destination, counts rechecked from the order frame
+    rec = ne_signal.sort_values("excess_late", ascending=False)[["segment", "origin_state", "destination_state", "origin_region", "destination_region", "n_delivered", "n_late",
+                                                                 "late_rate", "late_rate_lo", "late_rate_hi", "excess_late", "tier"]].copy()
+    chk = os_.groupby("lane").is_late.agg(order_check="size", late_check="sum")
+    rec = rec.merge(chk, left_on="segment", right_index=True)
+    total = {"segment": "TOTAL", "n_delivered": rec.n_delivered.sum(), "n_late": rec.n_late.sum(), "excess_late": rec.excess_late.sum(),
+             "order_check": rec.order_check.sum(), "late_check": rec.late_check.sum()}
+    res["northeast_reconciliation"] = pd.concat([rec, pd.DataFrame([total])], ignore_index=True)
+    ne_origin = lanes[lanes.eligible & lanes.northeast_origin].sort_values("excess_late", ascending=False)
+    res["northeast_origin_lanes"] = ne_origin[["segment", "origin_state", "destination_state", "origin_region", "destination_region", "northeast_bound", "n_delivered", "n_late",
+                                               "late_rate", "late_rate_lo", "late_rate_hi", "excess_late", "tier"]].reset_index(drop=True)
 
     # ---- episode dependence of Investigate candidates
     dep = []
@@ -431,6 +464,41 @@ def make_figures(res: dict) -> list[Path]:
     fig.suptitle("Largest excess late orders per level (bars colour = provisional tier; levels overlap and must not be added)", x=0.01, ha="left", fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "06_top_candidates")
+
+    # F7 PRIMARY priority view: excess late orders (volume of the gap) against late-delivery rate (intensity), with
+    # order volume (marker area), 95% Wilson intervals (both axes) and the provisional evidence tier (colour)
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5.4))
+    for ax, level in zip(axes, LEVELS):
+        t = res[f"candidates_{level}"]
+        e = t[t.eligible]
+        ref = res["references"][level]["late"]
+        for tier in ("No Signal", "Watch", "Investigate"):
+            s = e[e.tier == tier]
+            ax.errorbar(s.late_rate, s.excess_late, xerr=[(s.late_rate - s.late_rate_lo).clip(lower=0), (s.late_rate_hi - s.late_rate).clip(lower=0)],
+                        yerr=[(s.excess_late - s.excess_late_lo).clip(lower=0), (s.excess_late_hi - s.excess_late).clip(lower=0)], fmt="none",
+                        ecolor=tier_color[tier], alpha=0.22 if tier == "No Signal" else 0.4, elinewidth=0.8)
+            ax.scatter(s.late_rate, s.excess_late, s=np.sqrt(s.n_delivered) * (0.9 if level != "seller" else 2.2), color=tier_color[tier], edgecolor=dr.SURFACE,
+                       linewidth=0.6, label=tier, zorder=3)
+        for r in e[e.tier == "Investigate"].head(8).itertuples():
+            ax.annotate(label(r.segment, level), (r.late_rate, r.excess_late), xytext=(4, 3), textcoords="offset points", fontsize=8, color=INK2)
+        ax.axvline(ref, color=GREY, linestyle="--", linewidth=0.9)
+        ax.axhline(0, color=GREY, linewidth=0.8)
+        ax.axhline(PRIMARY_X, color=GREY, linestyle=":", linewidth=0.9)
+        if level != "seller":
+            ax.set_yscale("symlog", linthresh=50)
+            ax.yaxis.set_major_locator(matplotlib.ticker.FixedLocator([-1000, -300, -100, -30, 0, 30, 100, 300, 1000]))
+            ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:g}"))
+            ax.yaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0, decimals=0))
+        ax.set_xlabel(f"Late-delivery rate (95% Wilson); dashed = reference {ref:.1%}")
+        ax.set_ylabel("Excess late orders over the reference rate (95% interval)" if level == "state" else "")
+        ttl = f"{LEVELS[level]['title']}: {len(e)} ranked"
+        ax.set_title(ttl + ("  [secondary evidence]" if level == "seller" else ""), fontsize=10.5)
+    axes[0].legend(loc="upper left", fontsize=8, title="Provisional tier")
+    fig.suptitle(f"Primary priority view: excess late orders vs late rate (marker area = delivered orders; dotted line = the provisional {PRIMARY_X}-order screening threshold, not a significance level)",
+                 x=0.01, ha="left", fontweight="bold", fontsize=11)
+    fig.tight_layout()
+    save(fig, "07_priority_excess_vs_rate")
     return paths
 
 

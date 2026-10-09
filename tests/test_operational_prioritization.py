@@ -366,6 +366,65 @@ def test_outputs_written_and_figures_nonempty(res, tmp_path, monkeypatch):
     monkeypatch.setattr(op, "STATS_JSON", tmp_path / "stats.json")
     op.write_outputs(res)
     figs = op.make_figures(res)
-    assert len(figs) == 6 and all(p.stat().st_size > 10_000 for p in figs)
+    assert len(figs) == 7 and all(p.stat().st_size > 10_000 for p in figs)
+    assert any(p.name == "prio_07_priority_excess_vs_rate.png" for p in figs)        # primary priority view
     assert (tmp_path / "stats.json").stat().st_size > 1_000
     assert len(pd.read_csv(tmp_path / "tables" / "prio_candidates_state.csv")) == 27
+
+
+# ------------------------------------------------------------------ Northeast-bound classification (by DESTINATION state)
+NORTHEAST = {"AL", "BA", "CE", "MA", "PB", "PE", "PI", "RN", "SE"}          # IBGE macro-region, independent copy
+
+
+def test_northeast_bound_is_defined_by_destination_not_origin(res, frames):
+    _, s = frames
+    lanes = res["candidates_lane"]
+    parts = lanes.segment.str.split(">", expand=True)
+    assert (lanes.origin_state == parts[0]).all() and (lanes.destination_state == parts[1]).all()          # label = seller state > customer state
+    assert (lanes.northeast_bound == parts[1].isin(NORTHEAST)).all()
+    assert (lanes.northeast_origin == parts[0].isin(NORTHEAST)).all()
+    # independent recomputation of the flagged Northeast-bound lanes from the raw-CSV order frame
+    g = s.groupby("lane").late.agg(n="size", k="sum")
+    ref = s.late.mean()
+    g["lo"] = [binomtest(int(k), int(n)).proportion_ci(method="wilson").low for k, n in zip(g.k, g.n)]
+    flagged = g[(g.n >= 100) & (g.lo > ref)]
+    ne_flagged = {lane for lane in flagged.index if lane.split(">")[1] in NORTHEAST}
+    assert set(res["special_ne_lanes"]) == ne_flagged and len(ne_flagged) == 11
+    assert "MA>SP" not in ne_flagged and "MA>SP" in set(flagged.index)       # MA>SP is flagged but delivers to SP (Southeast), so it is not Northeast-bound
+    assert all(lane.split(">")[1] in NORTHEAST for lane in res["special_ne_lanes"])
+
+
+def test_northeast_reconciliation_totals(res, frames):
+    _, s = frames
+    rec = res["northeast_reconciliation"]
+    body, total = rec[rec.segment != "TOTAL"], rec[rec.segment == "TOTAL"].iloc[0]
+    assert len(body) == 11 and set(body.segment) == set(res["special_ne_lanes"])
+    assert (body.destination_region == "Northeast").all()
+    assert (body.n_delivered == body.order_check).all() and (body.n_late == body.late_check).all()        # SQL counts equal the independent frame
+    ne = s[s.lane.isin(set(body.segment))]
+    assert int(total.n_delivered) == len(ne) == 6_787 and int(total.n_late) == int(ne.late.sum()) == 908
+    assert math.isclose(total.excess_late, ne.late.sum() - len(ne) * s.late.mean(), abs_tol=1e-6)
+    assert math.isclose(total.excess_late, 442.0, abs_tol=0.5)
+    g = res["special_groups"].set_index("group")
+    flagged = g[g.index.str.startswith("Northeast-bound lanes with")].iloc[0]
+    assert (flagged.n_orders, flagged.n_late) == (int(total.n_delivered), int(total.n_late))
+    # flagged + unflagged Northeast-bound orders = all orders delivered to the Northeast region
+    allne = s[s.customer_state.isin(NORTHEAST)]
+    assert g.loc["All single-seller orders to the Northeast region", "n_orders"] == len(allne)
+    assert g.loc["All single-seller orders to the Northeast region", "n_orders"] == flagged.n_orders + g.loc["Northeast region, lanes not flagged", "n_orders"]
+
+
+def test_northeast_origin_lanes_reported_separately(res):
+    o = res["northeast_origin_lanes"]
+    assert o.northeast_origin.all() if "northeast_origin" in o else (o.origin_region == "Northeast").all()
+    assert not o.northeast_bound.any()                                      # none of the listed Northeast-origin lanes is Northeast-bound
+    assert "MA>SP" in set(o.segment) and set(o.segment).isdisjoint(set(res["special_ne_lanes"]))
+
+
+def test_ontime_low_score_rate_wilson_and_policy_docs(res):
+    t = res["candidates_state"].set_index("segment")
+    for seg in ("RJ", "SP", "BA"):
+        r = t.loc[seg]
+        ci = binomtest(int(r.n_low_ontime), int(r.n_rev_ontime)).proportion_ci(method="wilson")
+        assert math.isclose(r.low_ontime_rate_lo, ci.low, abs_tol=1e-9) and math.isclose(r.low_ontime_rate, r.n_low_ontime / r.n_rev_ontime, abs_tol=1e-12)
+    assert "OPERATIONAL SCREENING POLICY" in op.assign_tiers.__doc__ and "not a statistical significance" in op.assign_tiers.__doc__
