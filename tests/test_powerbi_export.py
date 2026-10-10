@@ -345,7 +345,6 @@ def test_readme_and_specs_are_consistent_with_the_package(pkg):
         assert page in specs
     for phrase in ("operational screening policy", "snapshot", "not statistical significance"):
         assert phrase in specs + readme
-    assert "No `.pbix` file" in readme
     # every measure named in backticks in the specs exists in the dictionary (names that look like measures)
     candidates = set(re.findall(r"`([A-Z][^`\[\]]*)`", specs))
     measure_like = {c for c in candidates if c in defs or c.startswith(("Seller:", "Snapshot:", "Note:")) and not c.endswith(" >= 100")}
@@ -353,6 +352,41 @@ def test_readme_and_specs_are_consistent_with_the_package(pkg):
     unknown_capitalised = {c for c in candidates if c not in defs and not c.startswith(("Seller:", "Snapshot:", "Note:"))}
     allowed = {"Investigate", "Watch", "No Signal", "On time", "Late", "Delivered orders < 100"}
     assert not {c for c in unknown_capitalised if c not in allowed and re.search(r"(orders|rate|time|score|share|error)", c)}, unknown_capitalised
+
+
+PBIX_ONLY_MEASURES = ("Late Rate Minimum 100", "Seller Late Rate", "Review Score Share", "Investigate States",
+                      "Investigate Lanes", "Investigate Sellers", "Screening Threshold")
+PBIX_ONLY_COLUMNS = ("Delay Period Group", "Delivery Time Group", "Delivery Status Label", "Review Star Label",
+                     "Distance Range", "Shipment Type")
+
+
+def test_documentation_acknowledges_the_saved_pbix_report():
+    """Current-state documentation check: a four-page .pbix exists, Stage A text is kept as history, and the
+    dashboard-only objects are listed (without invented formulas) as needing manual confirmation."""
+    readme = (PB / "README.md").read_text(encoding="utf-8")
+    dax_text = (PB / "dax_measures.md").read_text(encoding="utf-8")
+    validation = (ROOT / "reports" / "powerbi_preparation_validation.md").read_text(encoding="utf-8")
+    blueprint = (ROOT / "reports" / "project_blueprint.md").read_text(encoding="utf-8")
+    for name, text in (("powerbi/README.md", readme), ("validation report", validation), ("blueprint", blueprint)):
+        assert "Olist-Operations-Intelligence.pbix" in text, name
+        assert "four-page" in text, name
+    assert "historical" in readme.lower() and "historical" in validation.lower()   # Stage A context preserved
+    # section 8 lists every dashboard-only object, and says they are unverified
+    section8 = dax_text.split("## 8. ", 1)[1]
+    for obj in PBIX_ONLY_MEASURES + PBIX_ONLY_COLUMNS:
+        assert f"`{obj}`" in section8, obj
+    assert "manual confirmation" in dax_text and "not reproduced here" in section8
+    # no unverified formula slipped in: the only dax code blocks are in sections 1-7, and none defines a dashboard-only measure
+    assert "```dax" not in section8
+    for name in _measure_defs(dax_text):
+        assert name not in PBIX_ONLY_MEASURES, name
+    # the pbix itself is not required (it is not published), but if present it must be a zip with a model
+    pbix = PB / "Olist-Operations-Intelligence.pbix"
+    if pbix.exists():
+        import zipfile
+        with zipfile.ZipFile(pbix) as z:
+            names = z.namelist()
+        assert "DataModel" in names and sum(n.endswith("page.json") for n in names) == 4
 
 
 def test_power_query_covers_every_table_with_typed_columns(pkg):

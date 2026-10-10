@@ -2,7 +2,7 @@
 
 This folder contains everything needed to build the four-page dashboard in **Power BI Desktop**: validated data
 files, typed Power Query code, the semantic-model design, the DAX measure dictionary, and page specifications.
-**No `.pbix` file is included; this is a preparation package.** Nothing here changes a business definition: all
+**Current state (2026-10).** A four-page report, `Olist-Operations-Intelligence.pbix`, has since been built from this package. It is not tracked in Git for now because it embeds row-level data (section 11). The Stage A statement that follows is kept as the historical context of this package: **No `.pbix` file is included; this is a preparation package.** The package is still the source of the report's data. Seven measures and six calculated columns used by the report are not yet in the dictionary (`dax_measures.md`, section 8). Nothing here changes a business definition: all
 flags, populations and snapshot values come from the validated DuckDB model and the four analysis workstreams.
 
 | File | Purpose |
@@ -201,3 +201,29 @@ Complete this before building visuals. Expected values are validated in `reports
 - Distance is a straight-line ZIP-prefix approximation; late rate and lead time are conditional on delivery; review measures are associations (see `page_specs.md`).
 - Error bars on scatter charts require a Power BI Desktop version with scatter error bars; otherwise intervals stay in tooltips and tables.
 - Open decisions (listed with the validation report): whether the large fact CSVs (about 36 MB together) should be committed to Git, whether a Parquet variant should be added once compatibility is confirmed, and whether the published dashboard needs a refresh schedule.
+
+## 11. Publishing the report (decisions and safe workflow)
+
+**What the `.pbix` contains.** Four report pages (1920x1080) and a compressed data model. The model includes imported row-level tables
+derived from Olist (`fact_orders`, `fact_seller_orders`), so the file is *data-bearing*. It is kept out of public Git staging for now;
+see the root README, "Data licence and attribution".
+
+**Is a data-free Power BI Project (`.pbip`) feasible?** Probably, but this is **not verified here**. Power BI Desktop can save a report as
+a Power BI Project (a folder of text files: a `.Report` folder with the report definition and a `.SemanticModel` folder with the model
+definition), and a project is not required to carry the imported data cache. Checked in this repository: the `.pbix` report definition is
+already in the text (PBIR-style) format; `Settings` show relationship auto-detection disabled; `power_query.m` uses a `DataFolder`
+parameter rather than an absolute path. Not done: no `.pbip` has been created or inspected, so **nothing may be called data-free until
+its files have been read**. The Desktop menu names and the folder layout vary by version.
+
+Safe workflow, to be run by the report owner in Power BI Desktop:
+
+1. Copy the `.pbix` and open the copy.
+2. Enable the Power BI Project (`.pbip`) save format under Options > Preview features if needed, then File > Save as > Power BI Project into a **new empty folder outside the repository**.
+3. Close Desktop and scan the whole folder for data: no `cache.abf`, no `*.csv`, no unexpectedly large files, and no literal dataset values in `*.tmdl` files (for example search for a real `order_id` copied from `powerbi/data/fact_orders.csv`).
+4. Inspect the `DataFolder` parameter and every `Source` step in the model files and replace any personal absolute path with a placeholder such as `C:\path\to\powerbi\data\`.
+5. Confirm that `.pbi/localSettings.json` and `.pbi/cache.abf` (normally created by Desktop) are git-ignored.
+6. Only after steps 3-5 pass, copy the project into the repository (for example `powerbi/project/`), review `git status` and the diff, and commit with the repository owner's approval.
+7. Add page screenshots to `docs/dashboard/` and reference them in the root README. The exported PDF in `powerbi/visualisation/` can be rendered to images for this purpose.
+
+Until then the repository publishes code, SQL, tests, reports, the Power Query script, the data dictionary, the DAX dictionary and the
+fixed snapshot tables (`snap_*`), but not the `.pbix` or the row-level fact CSVs.

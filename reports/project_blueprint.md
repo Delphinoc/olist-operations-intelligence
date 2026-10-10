@@ -1,6 +1,6 @@
 # Project Blueprint: Olist Operations Intelligence
 
-**Status:** DESIGN DOCUMENT (Revision 3). Revision 2 incorporated the first reviewer decisions; Revision 3 (after the Workstream 4 review) corrects the Operational Priorities design and the Power BI plan. At the time of Revision 3 the DuckDB data model and the four analysis workstreams are implemented and validated (see `reports/`); the Power BI dashboard and the optional ML extension are **not** built.
+**Status:** DESIGN DOCUMENT (Revision 3). Revision 2 incorporated the first reviewer decisions; Revision 3 (after the Workstream 4 review) corrects the Operational Priorities design and the Power BI plan. At the time of Revision 3 the DuckDB data model and the four analysis workstreams are implemented and validated (see `reports/`); the Power BI dashboard and the optional ML extension were **not** built at that time. **Update (2026-10):** a four-page Power BI report (`powerbi/Olist-Operations-Intelligence.pbix`) now exists, built from the Stage A package; the ML extension was not built and is out of scope. The design text below is the historical plan and has not been rewritten.
 **Inputs:** `reports/dataset_feasibility.md`, `reports/kpi_validation.md`, `reports/profile_stats.json`, `reports/kpi_validation_stats.json`.
 
 **Labelling convention used throughout**

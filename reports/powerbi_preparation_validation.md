@@ -1,5 +1,11 @@
 # Power BI Stage A: preparation and validation report
 
+> **Update (final publication cleanup, 2026-10).** After this report was written, a four-page report
+> (`powerbi/Olist-Operations-Intelligence.pbix`) was built from the package. The text below is the historical Stage A validation and is
+> unchanged; its statements about the `.pbix` describe the situation *at that time*. The saved report uses seven measures and six
+> calculated columns that this validation does not cover (`powerbi/dax_measures.md`, section 8), and its model has not been checked in
+> Power BI Desktop. See `reports/final_portfolio_audit.md`.
+
 Stage A prepares a reproducible import package and implementation guide for the Power BI dashboard. **No `.pbix` file has been built, no
 Power BI Desktop action was performed, and nothing was pushed to GitHub.** The source of truth is the validated DuckDB model and the
 existing analysis outputs; no business definition was changed. DAX was not executed in Power BI: measures were validated through
