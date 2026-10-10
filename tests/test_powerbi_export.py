@@ -375,9 +375,9 @@ def test_documentation_acknowledges_the_saved_pbix_report():
     section8 = dax_text.split("## 8. ", 1)[1]
     for obj in PBIX_ONLY_MEASURES + PBIX_ONLY_COLUMNS:
         assert f"`{obj}`" in section8, obj
-    assert "manual confirmation" in dax_text and "not reproduced here" in section8
-    # no unverified formula slipped in: the only dax code blocks are in sections 1-7, and none defines a dashboard-only measure
-    assert "```dax" not in section8
+    assert "not executed inside Power BI Desktop" in " ".join(section8.split())
+    # the dashboard-only expressions sit in their own block type, outside the Stage A dictionary that the tests above parse
+    assert "```dax-dashboard" in section8 and "```dax\n" not in section8
     for name in _measure_defs(dax_text):
         assert name not in PBIX_ONLY_MEASURES, name
     # the pbix itself is not required (it is not published), but if present it must be a zip with a model
@@ -387,6 +387,106 @@ def test_documentation_acknowledges_the_saved_pbix_report():
         with zipfile.ZipFile(pbix) as z:
             names = z.namelist()
         assert "DataModel" in names and sum(n.endswith("page.json") for n in names) == 4
+
+
+def _dashboard_blocks(section8: str) -> dict[str, str]:
+    """{object name: expression} from the ```dax-dashboard blocks of section 8 (columns are written as table[Name] =)."""
+    out: dict[str, str] = {}
+    for block in re.findall(r"```dax-dashboard\n(.*?)```", section8, flags=re.S):
+        for chunk in re.split(r"\n\n(?=\S[^\n]* =\n)", block.strip("\n")):
+            head, expr = chunk.split(" =\n", 1)
+            out[re.sub(r"^\w+\[(.*)\]$", r"\1", head.strip())] = expr
+    return out
+
+
+def _norm(expr: str) -> str:
+    return re.sub(r"\s+", "", expr)
+
+
+def test_dashboard_only_objects_match_export_and_reconcile(tables, con):
+    """Section 8 holds the 7 measures / 6 calculated columns of dax_export.csv; their logic, evaluated in pandas on the exported
+    package, agrees with independent SQL on the DuckDB model and with the validated report tables."""
+    import csv
+    section8 = (PB / "dax_measures.md").read_text(encoding="utf-8").split("## 8. ", 1)[1]
+    doc = _dashboard_blocks(section8)
+    assert set(doc) == set(PBIX_ONLY_MEASURES) | set(PBIX_ONLY_COLUMNS) and len(doc) == 13
+    export = PB / "dax_export.csv"
+    if export.exists():   # the export is a local, untracked artefact: compare when present
+        with open(export, encoding="utf-8-sig", newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        assert len(rows) == 13 and sum(r["Type"] == "Measure" for r in rows) == 7 and sum(r["Type"] == "Calculated Column" for r in rows) == 6
+        for r in rows:
+            assert _norm(doc[r["ObjectName"]]) == _norm(r["Expression"]), r["ObjectName"]
+    # referenced columns exist in the exported tables and referenced [measures] exist in the Stage A dictionary
+    stage_a = _measure_defs((PB / "dax_measures.md").read_text(encoding="utf-8"))
+    for name, expr in doc.items():
+        assert expr.count("(") == expr.count(")"), name
+        for t, c in re.findall(r"\b(fact_orders|fact_seller_orders|dim_date|snap_\w+)\[(\w+)\]", expr):
+            assert c in tables[t].columns, (name, t, c)
+        for m in re.findall(r"(?<![\w\]])\[([^\]]+)\]", expr):
+            assert m in stage_a, (name, m)
+
+    fo, fs, dd = tables["fact_orders"], tables["fact_seller_orders"], tables["dim_date"]
+    sp, sm = tables["snap_priority_candidates"], tables["snap_metadata"]
+    elig = fo[fo.is_delivery_kpi_eligible == 1]
+
+    # Delivery Time Group vs SQL on the model (fractional days, same bin edges)
+    bands = ["0–4 days", "5–9 days", "10–14 days", "15–19 days", "20–29 days", "30+ days"]
+    edges = [5, 10, 15, 20, 30]
+    got = pd.cut(elig.lead_time_days, [-np.inf] + edges + [np.inf], right=False, labels=bands).value_counts().reindex(bands).tolist()
+    sql = con.execute("""SELECT count(*) FILTER (WHERE lead_time_days < 5), count(*) FILTER (WHERE lead_time_days >= 5 AND lead_time_days < 10),
+        count(*) FILTER (WHERE lead_time_days >= 10 AND lead_time_days < 15), count(*) FILTER (WHERE lead_time_days >= 15 AND lead_time_days < 20),
+        count(*) FILTER (WHERE lead_time_days >= 20 AND lead_time_days < 30), count(*) FILTER (WHERE lead_time_days >= 30)
+        FROM fact_orders WHERE is_delivery_kpi_eligible""").fetchone()
+    assert got == list(sql) and sum(got) == 96_203
+
+    # Review Star Label and Review Score Share (P0) vs the validated distribution table
+    p0 = fo[fo.is_review_p0 == 1]
+    stars = p0.review_score.map(lambda s: f"{int(s)} ★").value_counts().sort_index()
+    ref = pd.read_csv(ROOT / "reports" / "tables" / "satisfaction_overall_distribution.csv")
+    assert stars.tolist() == ref.n.tolist() and int(stars.sum()) == 95_037
+    assert np.allclose((stars / stars.sum()).to_numpy(), ref.share.to_numpy())
+
+    # Delivery Status Label: blank unless eligible
+    assert (elig.is_late == 1).sum() == 6_531 and (elig.is_late == 0).sum() == 89_672 and elig.is_late.notna().all()
+
+    # Shipment Type, Distance Range and Seller Late Rate vs the validated geography tables
+    ship = fs.groupby(fs.is_cross_state.map({1: "Cross-state", 0: "Same-state"})).is_late.agg(["size", "sum", "mean"])
+    ref_ship = pd.read_csv(ROOT / "reports" / "tables" / "geo_shipment_type.csv").set_index("is_cross_state")
+    assert ship.loc["Same-state", "size"] == ref_ship.loc[False, "n_delivered"] and ship.loc["Cross-state", "size"] == ref_ship.loc[True, "n_delivered"]
+    assert ship.loc["Cross-state", "sum"] == ref_ship.loc[True, "n_late"] and math.isclose(ship.loc["Same-state", "mean"], ref_ship.loc[False, "late_rate"])
+    assert fs.is_cross_state.notna().all()                                                # flag F3: no blanks today
+    q = fs.distance_band.str[:2]
+    dist = fs.groupby(q).is_late.agg(["size", "mean"])
+    ref_dist = pd.read_csv(ROOT / "reports" / "tables" / "geo_distance_bands.csv")
+    ref_dist = ref_dist.set_index(ref_dist.distance_band.str[:2])
+    assert set(dist.index) == {"Q0", "Q1", "Q2", "Q3", "Q4"}                              # Q0 falls into "Distance unavailable"
+    for k in dist.index:
+        assert dist.loc[k, "size"] == ref_dist.loc[k, "n_delivered"] and math.isclose(dist.loc[k, "mean"], ref_dist.loc[k, "late_rate"])
+    assert len(fs) == 94_931 and math.isclose(fs.is_late.mean(), 0.06866039544511277)
+
+    # Delay Period Group vs the validated period table
+    high = ((dd.year == 2017) & (dd.month_number == 11)) | ((dd.year == 2018) & dd.month_number.isin([2, 3]))
+    assert sorted(dd.loc[high, "year_month"].unique()) == ["2017-11", "2018-02", "2018-03"]
+    grp = elig.merge(dd.assign(g=np.where(high, "high_delay", "other"))[["date_key", "g"]], left_on="purchase_date", right_on="date_key", how="left")
+    assert grp.g.notna().all()
+    ref_p = pd.read_csv(ROOT / "reports" / "tables" / "geo_period_overall.csv")
+    ref_p = ref_p[ref_p.population == "All delivered orders"].set_index("period")
+    for g in ("high_delay", "other"):
+        sub = grp[grp.g == g]
+        assert len(sub) == ref_p.loc[g, "n_delivered"] and int(sub.is_late.sum()) == ref_p.loc[g, "n_late"]
+
+    # Late Rate Minimum 100: states with at least 100 delivered orders
+    assert int((elig.groupby("customer_state").size() >= 100).sum()) == 24
+
+    # Investigate counts and Screening Threshold vs the snapshot tables
+    inv = sp[sp.tier == "Investigate"].groupby("snapshot_level").size()
+    assert (inv["state"], inv["lane"], inv["seller"]) == (10, 9, 8)
+    assert int(float(sm.loc[sm.key == "primary_excess_threshold", "value"].iloc[0])) == 20
+
+    # flag F1: Delivery Time Group and Review Star Label are not population-guarded (documented in section 8.5)
+    assert fo[(fo.is_delivery_kpi_eligible != 1) & fo.lead_time_days.notna()].shape[0] == 267
+    assert fo[(fo.is_review_p0 != 1) & fo.review_score.notna()].shape[0] == 3_089
 
 
 def test_power_query_covers_every_table_with_typed_columns(pkg):

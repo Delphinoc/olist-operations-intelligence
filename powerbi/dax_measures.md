@@ -345,49 +345,205 @@ RETURN
 - No seller measure on `fact_orders`, and no cross-fact measure that combines both tables.
 - No measure uses the estimated or actual delivery date as a filter.
 
-## 8. Objects in the saved dashboard that are not in this dictionary (manual confirmation required)
+## 8. Dashboard-only objects (exported from the saved report)
 
-The saved report `powerbi/Olist-Operations-Intelligence.pbix` (four pages) uses seven measures and six calculated columns that were
-created in Power BI Desktop after the Stage A dictionary above was written. They were found by inspecting the report definition inside
-the `.pbix`, which lists the fields each visual uses. The `.pbix` data model, which holds the DAX and Power Query text, is a
-compressed binary that cannot be read outside Power BI Desktop, and no formula for these objects exists elsewhere in this repository.
-**Their formulas are therefore deliberately not reproduced here.** The tables record what is verifiable (name, home table, where it is
-used) and what must still be checked. The *Closest Stage A measure* and *Related physical column* entries are guesses from the name
-only and are **not** verified equivalences.
+The saved report `powerbi/Olist-Operations-Intelligence.pbix` uses seven measures and six calculated columns that were created in
+Power BI Desktop after the Stage A dictionary (sections 1-7) was written. Their **exact expressions** below come from
+`powerbi/dax_export.csv` (13 rows: 7 `Measure` and 6 `Calculated Column`), reproduced without modification apart from code-block
+layout. Where each object is used was read from the report definition inside the `.pbix`.
 
-Sections 1-7 are unchanged. The automated tests validate that dictionary and its Python equivalents, **not** the objects below.
-The exported dashboard PDF (`powerbi/visualisation/Olist-Operations-Intelligence.pdf`) shows displayed values that agree with the
-documented anchors (96,203 delivered, 6.79% late, 2.97% severe, 95,037 single-review orders, 10 / 9 / 8 Investigate segments, threshold 20),
-which is supporting evidence but not a check of the formulas.
+Status of these objects: **expressions documented and numerically reconciled in Python and DuckDB (section 8.4); not executed inside
+Power BI Desktop by this project.** Nothing was corrected. Suspicious or fragile points are flagged in section 8.5 for your decision.
+The Stage A tests (`test_dax_columns_exist_and_scoping_rules_hold` and the others that read sections 1-7) do not parse the blocks below;
+`test_dashboard_only_objects_match_export_and_reconcile` does.
 
-### 8.1 Measures (table `_Measures`)
+### 8.1 Calculated columns
 
-| Dashboard measure | Used on | Role in visual | Closest Stage A measure (guess) | To confirm |
+| Column | Table | Intended use (visual) |
+|---|---|---|
+| `Delivery Time Group` | `fact_orders` | Axis of "Distribution of Delivery Lead Times" (page 2) |
+| `Review Star Label` | `fact_orders` | Axis of "Customer Review Score Distribution" (page 3) |
+| `Delivery Status Label` | `fact_orders` | Axis of "Low Ratings by Delivery Status" and "Review-Timing Sensitivity: P0 vs P1" (page 3) |
+| `Shipment Type` | `fact_seller_orders` | Axis of "Late-Delivery Rate by Shipment Type" (page 2) |
+| `Distance Range` | `fact_seller_orders` | No field well of any visual uses it in the saved report (see flag F5); the distance chart uses `distance_band` |
+| `Delay Period Group` | `dim_date` | Axis of "Late-Delivery Rate: High-Delay vs Other Months" (page 4) |
+
+```dax-dashboard
+fact_orders[Delivery Time Group] =
+VAR Days = fact_orders[lead_time_days]
+RETURN
+SWITCH (
+    TRUE(),
+    ISBLANK(Days), BLANK(),
+    Days < 5, "0–4 days",
+    Days < 10, "5–9 days",
+    Days < 15, "10–14 days",
+    Days < 20, "15–19 days",
+    Days < 30, "20–29 days",
+    "30+ days"
+)
+
+fact_orders[Review Star Label] =
+IF (
+    ISBLANK ( fact_orders[review_score] ),
+    BLANK(),
+    FORMAT ( fact_orders[review_score], "0" ) & " ★"
+)
+
+fact_orders[Delivery Status Label] =
+SWITCH (
+    TRUE(),
+    fact_orders[is_delivery_kpi_eligible] <> 1, BLANK(),
+    fact_orders[is_late] = 1, "Late",
+    fact_orders[is_late] = 0, "On time",
+    BLANK()
+)
+
+fact_seller_orders[Shipment Type] =
+IF (
+    fact_seller_orders[is_cross_state] = 1,
+    "Cross-state",
+    "Same-state"
+)
+
+fact_seller_orders[Distance Range] =
+SWITCH (
+    TRUE(),
+    LEFT ( fact_seller_orders[distance_band], 2 ) = "Q1", "0–184 km",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = "Q2", "184–434 km",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = "Q3", "434–799 km",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = "Q4", "799+ km",
+    "Distance unavailable"
+)
+
+dim_date[Delay Period Group] =
+IF (
+    (
+        dim_date[year] = 2017
+            && dim_date[month_number] = 11
+    )
+    ||
+    (
+        dim_date[year] = 2018
+            && dim_date[month_number] IN { 2, 3 }
+    ),
+    "High-delay months",
+    "Other months"
+)
+```
+
+### 8.2 Measures (table `_Measures`)
+
+| Measure | Intended use (visual) | Stage A counterpart |
+|---|---|---|
+| `Late Rate Minimum 100` | Bar chart "Highest Late-Delivery Rates by State" (page 2), with a Top N filter on `state_code` | `Late-delivery rate (n >= 100)`: same logic (returns blank implicitly in Stage A, explicitly here) |
+| `Seller Late Rate` | "Late-Delivery Rate by Shipment Type" and "Late-Delivery Rate by Shipping Distance" (page 2) | `Seller: late-delivery rate`: same logic, written inline |
+| `Review Score Share` | Tooltip of "Customer Review Score Distribution" (page 3) | none: share of P0 orders per star rating |
+| `Investigate States` | Card on page 4 | `Snapshot: Investigate segments` with level fixed to `"state"` |
+| `Investigate Lanes` | Card on page 4 | same, level `"lane"` |
+| `Investigate Sellers` | Card on page 4 | same, level `"seller"` |
+| `Screening Threshold` | Card on page 4 | `Snapshot: primary screening threshold`: identical text |
+
+```dax-dashboard
+Late Rate Minimum 100 =
+IF (
+    [Delivered orders] >= 100,
+    [Late-delivery rate],
+    BLANK()
+)
+
+Seller Late Rate =
+DIVIDE (
+    CALCULATE (
+        COUNTROWS ( fact_seller_orders ),
+        fact_seller_orders[is_late] = 1
+    ),
+    COUNTROWS ( fact_seller_orders )
+)
+
+Review Score Share =
+DIVIDE (
+    [Reviewed orders (P0)],
+    CALCULATE (
+        [Reviewed orders (P0)],
+        REMOVEFILTERS ( fact_orders[Review Star Label] )
+    )
+)
+
+Investigate States =
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = "state",
+    snap_priority_candidates[tier] = "Investigate"
+)
+
+Investigate Lanes =
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = "lane",
+    snap_priority_candidates[tier] = "Investigate"
+)
+
+Investigate Sellers =
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = "seller",
+    snap_priority_candidates[tier] = "Investigate"
+)
+
+Screening Threshold =
+VALUE (
+    LOOKUPVALUE (
+        snap_metadata[value],
+        snap_metadata[key],
+        "primary_excess_threshold"
+    )
+)
+```
+
+### 8.3 Context behaviour (read from the expressions)
+
+- `Late Rate Minimum 100` inherits the filter context of `Delivered orders` and `Late-delivery rate` (population: `is_delivery_kpi_eligible = 1`); it is blank for any state, month range or other slice with fewer than 100 delivered orders.
+- `Seller Late Rate` reads only `fact_seller_orders` (94,931 eligible single-seller orders). It responds to the date, destination-state, origin-state and seller dimensions, and never to filters that exist only on `fact_orders`.
+- `Review Score Share` removes only the `Review Star Label` filter. Date, state and other slicers stay in force, so it is "share of the reviewed orders in the current slice that gave this rating". With no `Review Star Label` in the visual it returns 100%.
+- `Investigate States / Lanes / Sellers` and `Screening Threshold` use the disconnected `snap_*` tables, so date, state and seller slicers cannot change them. Their `CALCULATE` replaces any slicer on `snapshot_level` and `tier`, but a slicer on another snapshot column (for example `display_region`) would still change the counts.
+
+### 8.4 Reconciliation results (Python on the exported package and independent SQL on the DuckDB model)
+
+| Object | Reproduced value | Reference | Result |
+|---|---|---|---|
+| `Delivery Time Group` (delivered orders) | 0-4: 13,428; 5-9: 32,980; 10-14: 23,570; 15-19: 12,114; 20-29: 9,609; 30+: 4,502 (sum 96,203) | SQL on `fact_orders`; also equals the values shown in the dashboard PDF | match |
+| `Review Star Label` (P0 orders) | 1 star 9,250; 2: 2,895; 3: 7,839; 4: 18,749; 5: 56,304 (sum 95,037) | `reports/tables/satisfaction_overall_distribution.csv`; dashboard PDF | match |
+| `Delivery Status Label` | Late 6,531; On time 89,672 (sum 96,203) | Late orders / delivered orders in section 1 | match |
+| `Shipment Type` + `Seller Late Rate` | Same-state 34,149 orders, 4.57% late; Cross-state 60,782 orders, 8.16% late | `reports/tables/geo_shipment_type.csv` | match |
+| `Distance Range` + `Seller Late Rate` | 0-184 km 4.56%; 184-434 km 6.50%; 434-799 km 7.24%; 799+ km 9.11%; unavailable 471 orders 9.55% | `reports/tables/geo_distance_bands.csv` | match |
+| `Seller Late Rate` (all) | 6.87% of 94,931 | single-seller reference rate (6.87%) | match |
+| `Delay Period Group` | High-delay 3,158 / 20,846 = 15.15%; Other 3,373 / 75,357 = 4.48% | `reports/tables/geo_period_overall.csv` | match |
+| `Late Rate Minimum 100` | 24 of 27 states return a value | blueprint R8 (24 of 27 states qualify) | match |
+| `Investigate States / Lanes / Sellers` | 10 / 9 / 8 | `snap_priority_candidates` at the 20-order policy | match |
+| `Screening Threshold` | 20 | `snap_metadata` | match |
+| `Review Score Share` | 1 star 9.73%; 2: 3.05%; 3: 8.25%; 4: 19.73%; 5: 59.24% | star counts above / 95,037 | match |
+
+These checks confirm that the expressions describe the intended populations and numbers on the exported data. They are **not** a
+substitute for reading the same values in Power BI Desktop (checklist in `README.md`, section 9).
+
+### 8.5 Flags (nothing was changed; for your decision)
+
+| # | Priority | Object | Observation | Suggested follow-up |
 |---|---|---|---|---|
-| `Late Rate Minimum 100` | Page 2 Delivery Performance | bar chart value | `Late-delivery rate (n >= 100)` | formula, population, 100-order rule |
-| `Seller Late Rate` | Page 2 Delivery Performance | two column charts | `Seller: late-delivery rate` | reads `fact_seller_orders` only |
-| `Review Score Share` | Page 3 Customer Experience | chart tooltip | none | numerator, denominator, population (P0 or P1) |
-| `Investigate States` | Page 4 Operational Priorities | card (shows 10) | `Snapshot: Investigate segments`, level = state | counts tier = Investigate at state level |
-| `Investigate Lanes` | Page 4 Operational Priorities | card (shows 9) | same, level = lane | as above |
-| `Investigate Sellers` | Page 4 Operational Priorities | card (shows 8) | same, level = seller | as above |
-| `Screening Threshold` | Page 4 Operational Priorities | card (shows 20) | `Snapshot: primary screening threshold` | read from `snap_metadata`, not hard-coded |
+| F1 | Medium | `Delivery Time Group`, `Review Star Label` | Unlike `Delivery Status Label`, they are not limited to the KPI population. 267 delivered orders outside the purchase window get a lead-time band (they are not in the 96,203), and 3,089 single-review orders outside P0 get a star label (P0 is 95,037). Dashboard counts are right only because both visuals pair the column with `Delivered orders` / `Reviewed orders (P0)`, which apply the population flags. A plain row count by these columns would be wrong. | Optionally guard them like `Delivery Status Label` (`is_delivery_kpi_eligible`, `is_review_p0`), or document "use only with the KPI measures". |
+| F2 | Medium | `Seller Late Rate` | Duplicates `Seller: late-delivery rate` under a different name. It is on the single-seller basis (94,931 orders, 6.87%) while the other page 2 visuals use all delivered orders (96,203, 6.79%). The shipment-type and distance charts carry no population note in the exported page text. | Show "single-seller orders, n = 94,931" in their subtitles; consider reusing the Stage A name. |
+| F3 | Low | `Shipment Type` | `IF ( ... = 1, "Cross-state", "Same-state" )` would label a blank flag "Same-state". There are no blanks among the 94,931 rows today, so values are correct. | Optional: add an explicit blank branch. |
+| F4 | Low | `Review Score Share` | Correct on the star-rating chart (numerators and denominators reconcile). In any visual without `Review Star Label` the ratio is 100%. The measure name does not say "of P0 orders, per rating". | Keep it on that visual only; consider renaming. |
+| F5 | Low | `Distance Range` | Not bound to any visual field well in the saved report (the distance chart uses raw `distance_band`, whose labels are "Q1: nearest quarter" ... "Q4: farthest quarter"). The km boundaries are typed in (184 / 434 / 799), rounded from the model's cut points 183.77 / 433.96 / 798.99 km, and would not follow a re-export with different cut points. Unused objects could be dropped; it may still serve a filter or hidden use. | Confirm usage; remove it or document it. |
+| F6 | Low | `Delay Period Group` | The three months are typed in (2017-11, 2018-02, 2018-03). They match the delivery workstream's high-delay rule, but a changed rule would not propagate. The "Other months" bucket also holds out-of-window dates (the date table starts 2016-09); the chart is correct only because its measures use the eligible flag. | Add a note beside the chart: "high-delay months fixed in the delivery workstream". |
+| F7 | Low | `Delivery Time Group` | Bands are applied to fractional days, so 4.9 days sits in "0–4 days". The text labels would sort alphabetically; the PDF shows the correct order, so a sort-by-column setting exists that is not part of the export. | Confirm the sort setting; say "up to under 5 days" or equivalent if exact wording matters. |
+| F8 | Info | `Investigate *`, `Screening Threshold` | Counts and threshold match the snapshot tables. Counts would change if another snapshot column were sliced on page 4. `Screening Threshold` stays a stored policy value, not a significance level. | Keep page 4 slicers to `snapshot_level` and `tier`, as documented. |
 
-### 8.2 Calculated columns
+No expression was found that gives a wrong number on the exported data.
 
-| Dashboard column | Table | Used on | Role in visual | Related physical column (guess) | To confirm |
-|---|---|---|---|---|---|
-| `Delay Period Group` | `dim_date` | Page 4 | column chart axis | `year_month` | grouping; high-delay months are 2017-11, 2018-02, 2018-03 |
-| `Delivery Time Group` | `fact_orders` | Page 2 | column chart axis | `lead_time_days` | source column and bin edges |
-| `Delivery Status Label` | `fact_orders` | Page 3 | axis of two column charts | `delivery_outcome` | label mapping |
-| `Review Star Label` | `fact_orders` | Page 3 | column chart axis | `review_score` | label text and sort order |
-| `Distance Range` | `fact_seller_orders` | Page 2 | chart axis | `distance_band` | bin edges vs quartile cut points (184 / 434 / 799 km) |
-| `Shipment Type` | `fact_seller_orders` | Page 2 | column chart axis | `is_cross_state` | label mapping |
+### 8.6 What remains manual
 
-Calculated columns created in Desktop are not rebuilt by `scripts/export_powerbi.py`. Anyone rebuilding the report from the package
-must recreate them; consider moving them into the export or Power Query so the package alone reproduces the report.
-
-### 8.3 How to close this section
-
-In Power BI Desktop, select each object, copy its formula from the formula bar into the tables (or into a `dax` block that follows
-the dictionary conventions), run the reconciliation checklist in `README.md` section 9, then remove the "guess" columns. Do not
-describe any object above as validated until its values are reconciled.
+1. Open the `.pbix` and confirm the 13 objects exist exactly as exported (the export file is the evidence, the model itself was not read).
+2. Check sort-by-column settings for `Delivery Time Group` (F7), the visual subtitles (F2) and the unused `Distance Range` column (F5).
+3. Run the reconciliation checklist in `README.md` section 9 and add page 2-4 spot checks from section 8.4.
