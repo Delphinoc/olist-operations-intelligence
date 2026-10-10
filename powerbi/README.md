@@ -226,7 +226,7 @@ Safe workflow, to be run by the report owner in Power BI Desktop:
 4. Inspect the `DataFolder` parameter and every `Source` step in the model files and replace any personal absolute path with a placeholder such as `C:\path\to\powerbi\data\`.
 5. Confirm that `.pbi/localSettings.json` and `.pbi/cache.abf` (normally created by Desktop) are git-ignored.
 6. Only after steps 3-5 pass, copy the project into the repository (for example `powerbi/project/`), review `git status` and the diff, and commit with the repository owner's approval.
-7. Add page screenshots to `docs/dashboard/` and reference them in the root README. The exported PDF in `powerbi/visualisation/` can be rendered to images for this purpose.
+7. Page screenshots already exist in `docs/dashboard/` and are shown in the root README ("Dashboard Preview"); they do not depend on publishing the `.pbix` or a `.pbip`.
 
 Until then the repository publishes code, SQL, tests, reports, the Power Query script, the data dictionary, the DAX dictionary and the
 fixed snapshot tables (`snap_*`), but not the `.pbix` or the row-level fact CSVs.

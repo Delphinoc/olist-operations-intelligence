@@ -56,16 +56,39 @@ These follow from the descriptive results and are suggestions to be confirmed wi
 
 No financial impact is estimated, because the dataset has no cost or margin information.
 
-## Dashboard
+## Dashboard Preview
 
-A four-page Power BI report (1920x1080 pages: Executive Overview, Delivery Performance, Customer Experience, Operational Priorities) was built from the validated import package. A PDF export of the four pages is in [`powerbi/visualisation/Olist-Operations-Intelligence.pdf`](powerbi/visualisation/Olist-Operations-Intelligence.pdf).
+A four-page Power BI report (Executive Overview, Delivery Performance, Customer Experience, Operational Priorities) was built from the validated import package. All figures shown are historical, descriptive and observational: they say where and when deliveries ran late, not why. A PDF export of the four pages is in [`powerbi/visualisation/Olist-Operations-Intelligence.pdf`](powerbi/visualisation/Olist-Operations-Intelligence.pdf).
+
+### Executive Overview
+
+![Executive Overview: headline KPIs, monthly late-delivery rate, states contributing the most late deliveries and top shipment lanes](docs/dashboard/01_executive_overview.png)
+
+*A one-page answer to "how reliable is delivery?": 96,203 delivered orders, 6.79% late, 2.97% more than a week late, a monthly late rate that spikes in the high-delay months (Nov 2017, Feb-Mar 2018), the states contributing the most late orders, and the five lanes with the most excess late orders.*
+
+### Delivery Performance
+
+![Delivery Performance: late-delivery severity, lead-time distribution, rates by state, shipment type and distance](docs/dashboard/02_delivery_performance.png)
+
+*How late, and where: severity bands among late orders, the lead-time distribution, the highest-rate states (Northeast-led, AL 21.5%), and late rates of 4.6% same-state vs 8.2% cross-state and 4.6% to 9.1% from the nearest to the farthest distance quarter. The shipment-type and distance charts cover the 94,931 single-seller orders; distance is a straight-line approximation.*
+
+### Customer Experience
+
+![Customer Experience: review score distribution, low ratings by delivery status and P0 vs P1 review-timing sensitivity](docs/dashboard/03_customer_experience.png)
+
+*Reviews vs lateness: 1-2 star shares of 9.2% for on-time and 62.4% for late orders (P0, 95,037 single-review orders). The P0 vs P1 chart shows the late-order share falling to 25.0% once reviews written before the recorded delivery date are removed, so the headline gap depends on review timing. An association, not an effect.*
+
+### Operational Priorities
+
+![Operational Priorities: Investigate counts, shipment lane matrix, top five lanes and high-delay vs other months](docs/dashboard/04_operational_priorities.png)
+
+*Where to look first: a fixed-period snapshot (Jan 2017 - Aug 2018) with 10 states, 9 lanes and 8 sellers tiered Investigate at the 20-excess-late-order screening policy, SP>RJ as the largest lane (+596 excess late orders), and 15.1% vs 4.5% late in high-delay vs other months. Provisional screening labels, not statistical significance; the levels overlap and must not be added together.*
+
+Screenshots were taken from the report owner's Power BI Desktop session. Page-level caveats are repeated on the pages themselves.
 
 The `.pbix` itself is **not published in this repository**. It embeds row-level data derived from the Olist dataset, so it is kept local until the data-licence question below is settled. The import package definition (Power Query script, data dictionary, DAX dictionary and page specifications) is in [`powerbi/`](powerbi/); the row-level import CSVs are rebuilt with `scripts/export_powerbi.py`. How a data-free Power BI Project could be published is described in [`powerbi/README.md`](powerbi/README.md), section 11. It has not been created or inspected yet.
 
-**Screenshots: not yet added.** Page images will be added under `docs/dashboard/` from the report owner's Power BI Desktop export; none are included, and none have been generated or mocked up. Until then, analysis charts rendered from the same validated data are in [`reports/figures/`](reports/figures/), for example:
-
-![Monthly late rate](reports/figures/delivery_01_monthly_late_rate.png)
-![Top priority candidates](reports/figures/prio_06_top_candidates.png)
+Analysis charts rendered from the same validated data are in [`reports/figures/`](reports/figures/).
 
 Measure definitions, relationships and a KPI reconciliation checklist are in [`powerbi/README.md`](powerbi/README.md) and [`powerbi/dax_measures.md`](powerbi/dax_measures.md). All 13 dashboard-only objects (7 measures, 6 calculated columns) are documented with their exact formulas in section 8 of the DAX dictionary, taken from an export of the saved model made with Tabular Editor 2 ([`powerbi/dax_export.csv`](powerbi/dax_export.csv)). Their values were reconciled in SQL and Python against the DuckDB model and the validated report tables. **They have not been executed in Power BI Desktop by this project**, so the Desktop checks remain manual (see [Limitations](#limitations)).
 
