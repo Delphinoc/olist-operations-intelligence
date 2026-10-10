@@ -1,0 +1,106 @@
+Type,Table,ObjectName,Expression
+"Calculated Column","fact_orders","Delivery Time Group","
+VAR Days = fact_orders[lead_time_days]
+RETURN
+SWITCH (
+    TRUE(),
+    ISBLANK(Days), BLANK(),
+    Days < 5, ""0–4 days"",
+    Days < 10, ""5–9 days"",
+    Days < 15, ""10–14 days"",
+    Days < 20, ""15–19 days"",
+    Days < 30, ""20–29 days"",
+    ""30+ days""
+)
+"
+"Calculated Column","fact_orders","Review Star Label","
+IF (
+    ISBLANK ( fact_orders[review_score] ),
+    BLANK(),
+    FORMAT ( fact_orders[review_score], ""0"" ) & "" ★""
+)"
+"Calculated Column","fact_orders","Delivery Status Label","
+SWITCH (
+    TRUE(),
+    fact_orders[is_delivery_kpi_eligible] <> 1, BLANK(),
+    fact_orders[is_late] = 1, ""Late"",
+    fact_orders[is_late] = 0, ""On time"",
+    BLANK()
+)"
+"Calculated Column","fact_seller_orders","Shipment Type","
+IF (
+    fact_seller_orders[is_cross_state] = 1,
+    ""Cross-state"",
+    ""Same-state""
+)"
+"Calculated Column","fact_seller_orders","Distance Range","
+SWITCH (
+    TRUE(),
+    LEFT ( fact_seller_orders[distance_band], 2 ) = ""Q1"", ""0–184 km"",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = ""Q2"", ""184–434 km"",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = ""Q3"", ""434–799 km"",
+    LEFT ( fact_seller_orders[distance_band], 2 ) = ""Q4"", ""799+ km"",
+    ""Distance unavailable""
+)"
+"Calculated Column","dim_date","Delay Period Group","
+IF (
+    (
+        dim_date[year] = 2017
+            && dim_date[month_number] = 11
+    )
+    ||
+    (
+        dim_date[year] = 2018
+            && dim_date[month_number] IN { 2, 3 }
+    ),
+    ""High-delay months"",
+    ""Other months""
+)"
+"Measure","_Measures","Late Rate Minimum 100","
+IF (
+    [Delivered orders] >= 100,
+    [Late-delivery rate],
+    BLANK()
+)"
+"Measure","_Measures","Seller Late Rate","
+DIVIDE (
+    CALCULATE (
+        COUNTROWS ( fact_seller_orders ),
+        fact_seller_orders[is_late] = 1
+    ),
+    COUNTROWS ( fact_seller_orders )
+)"
+"Measure","_Measures","Review Score Share","
+DIVIDE (
+    [Reviewed orders (P0)],
+    CALCULATE (
+        [Reviewed orders (P0)],
+        REMOVEFILTERS ( fact_orders[Review Star Label] )
+    )
+)"
+"Measure","_Measures","Investigate States","
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = ""state"",
+    snap_priority_candidates[tier] = ""Investigate""
+)"
+"Measure","_Measures","Investigate Lanes","
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = ""lane"",
+    snap_priority_candidates[tier] = ""Investigate""
+)"
+"Measure","_Measures","Investigate Sellers","
+CALCULATE (
+    COUNTROWS ( snap_priority_candidates ),
+    snap_priority_candidates[snapshot_level] = ""seller"",
+    snap_priority_candidates[tier] = ""Investigate""
+)"
+"Measure","_Measures","Screening Threshold","
+VALUE (
+    LOOKUPVALUE (
+        snap_metadata[value],
+        snap_metadata[key],
+        ""primary_excess_threshold""
+    )
+)"

@@ -35,7 +35,7 @@ The four kinds of result in this project answer different questions and must not
 ### 3. Geography and sellers ([report](reports/geographic_seller_findings.md))
 - State late rates run from 2.8% to 21.5% across 24 reportable states. The five highest are Northeast states, and São Paulo is the lowest large state (4.5%).
 - Rio de Janeiro has 13% of orders but 23% of late orders (12.1% late on 12,310 orders).
-- Cross-state shipments are late 8.2% of the time vs 4.6% for same-state. Distance is a straight-line ZIP-prefix approximation, not road distance.
+- Cross-state shipments are late 8.2% of the time vs 4.6% for same-state (single-seller orders, n = 94,931). Distance is a straight-line ZIP-prefix approximation, not road distance.
 - **Single-seller analysis:** 57 of 412 sellers with at least 50 orders have an interval entirely above the portfolio rate (about 14 expected by chance). Seller late rates are only moderately persistent between window halves (rank correlation 0.35).
 - The 2017-11, 2018-02 and 2018-03 spike (15.1% vs 4.5% in other months) was broad-based. At most 0.2 of the 10.7 points is explained by changes in state, lane or seller mix.
 
@@ -67,7 +67,11 @@ The `.pbix` itself is **not published in this repository**. It embeds row-level 
 ![Monthly late rate](reports/figures/delivery_01_monthly_late_rate.png)
 ![Top priority candidates](reports/figures/prio_06_top_candidates.png)
 
-Measure definitions, relationships and a KPI reconciliation checklist are in [`powerbi/README.md`](powerbi/README.md) and [`powerbi/dax_measures.md`](powerbi/dax_measures.md). Seven measures and six calculated columns used by the report are not yet documented there (section 8 of the DAX dictionary); the DAX inside the report has not been machine-verified (see [Limitations](#limitations)).
+Measure definitions, relationships and a KPI reconciliation checklist are in [`powerbi/README.md`](powerbi/README.md) and [`powerbi/dax_measures.md`](powerbi/dax_measures.md). All 13 dashboard-only objects (7 measures, 6 calculated columns) are documented with their exact formulas in section 8 of the DAX dictionary, taken from an export of the saved model made with Tabular Editor 2 ([`powerbi/dax_export.csv`](powerbi/dax_export.csv)). Their values were reconciled in SQL and Python against the DuckDB model and the validated report tables. **They have not been executed in Power BI Desktop by this project**, so the Desktop checks remain manual (see [Limitations](#limitations)).
+
+Two reading notes for the page 2 charts:
+- **Population.** "Late-Delivery Rate by Shipment Type" and "by Shipping Distance" use the **single-seller** population (94,931 orders, 6.87% late overall), because seller state and distance exist only for orders with one seller. The other page 2 visuals use all 96,203 delivered orders (6.79%).
+- **Lead-time bands.** "Distribution of Delivery Lead Times" bins fractional days with the rule *at least the lower bound and below the upper bound*: "0–4 days" means under 5.0 days (4.9 days is included), "5–9 days" means 5.0 to under 10.0 days, and so on up to "30+ days" (30.0 days or more).
 
 ## Methods
 
@@ -142,4 +146,4 @@ To open the dashboard from scratch, follow [`powerbi/README.md`](powerbi/README.
 - Reviews are voluntary, and a large share of late-order reviews were written before delivery. Review results are associations.
 - Seller results hold for single-seller orders only and are unstable across periods.
 - One marketplace, a 20-month window, and no cost data: no financial impact is claimed.
-- The DAX measures were validated through Python equivalents, not executed in Power BI Desktop in this audit.
+- The documented DAX (including the 13 dashboard-only objects) was validated through Python and SQL equivalents. It was **not executed in Power BI Desktop** in this audit; values shown in the dashboard PDF agree with the verified findings but are not a formula check.

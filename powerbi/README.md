@@ -2,7 +2,7 @@
 
 This folder contains everything needed to build the four-page dashboard in **Power BI Desktop**: validated data
 files, typed Power Query code, the semantic-model design, the DAX measure dictionary, and page specifications.
-**Current state (2026-10).** A four-page report, `Olist-Operations-Intelligence.pbix`, has since been built from this package. It is not tracked in Git for now because it embeds row-level data (section 11). The Stage A statement that follows is kept as the historical context of this package: **No `.pbix` file is included; this is a preparation package.** The package is still the source of the report's data. Seven measures and six calculated columns used by the report are not yet in the dictionary (`dax_measures.md`, section 8). Nothing here changes a business definition: all
+**Current state (2026-10).** A four-page report, `Olist-Operations-Intelligence.pbix`, has since been built from this package. It is not tracked in Git for now because it embeds row-level data (section 11). The Stage A statement that follows is kept as the historical context of this package: **No `.pbix` file is included; this is a preparation package.** The package is still the source of the report's data. The seven measures and six calculated columns that the report adds are documented with their exact formulas in `dax_measures.md`, section 8 (exported from the saved model with Tabular Editor 2 into `dax_export.csv`; reconciled in SQL/Python, not executed in Power BI Desktop by this project). Nothing here changes a business definition: all
 flags, populations and snapshot values come from the validated DuckDB model and the four analysis workstreams.
 
 | File | Purpose |
@@ -199,6 +199,9 @@ Complete this before building visuals. Expected values are validated in `reports
 
 - Fixed-snapshot tables are not live; refresh them only by re-running `scripts/export_powerbi.py` after the model is rebuilt.
 - Distance is a straight-line ZIP-prefix approximation; late rate and lead time are conditional on delivery; review measures are associations (see `page_specs.md`).
+- **Population on page 2.** The shipment-type and shipping-distance charts use `Seller Late Rate`, which reads `fact_seller_orders` only: the **94,931 single-seller orders** (6.87% late). The state, lead-time and headline visuals use the 96,203 delivered orders (6.79%). State the population in those chart subtitles.
+- **Lead-time bins.** `Delivery Time Group` applies integer-looking labels to fractional days with half-open intervals: "0–4 days" is under 5.0 days, "5–9 days" is 5.0 to under 10.0, "10–14 days" 10.0 to under 15.0, "15–19 days" 15.0 to under 20.0, "20–29 days" 20.0 to under 30.0, "30+ days" 30.0 or more.
+- **Desktop verification.** The 13 dashboard-only formulas are exact copies from the saved model, but their values were reconciled in SQL and Python, not in Power BI Desktop. Complete the checklist in section 9 there.
 - Error bars on scatter charts require a Power BI Desktop version with scatter error bars; otherwise intervals stay in tooltips and tables.
 - Open decisions (listed with the validation report): whether the large fact CSVs (about 36 MB together) should be committed to Git, whether a Parquet variant should be added once compatibility is confirmed, and whether the published dashboard needs a refresh schedule.
 

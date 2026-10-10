@@ -349,8 +349,9 @@ RETURN
 
 The saved report `powerbi/Olist-Operations-Intelligence.pbix` uses seven measures and six calculated columns that were created in
 Power BI Desktop after the Stage A dictionary (sections 1-7) was written. Their **exact expressions** below come from
-`powerbi/dax_export.csv` (13 rows: 7 `Measure` and 6 `Calculated Column`), reproduced without modification apart from code-block
-layout. Where each object is used was read from the report definition inside the `.pbix`.
+`powerbi/dax_export.csv` (13 rows: 7 `Measure` and 6 `Calculated Column`), an export of the saved model made by the report owner with
+Tabular Editor 2 and reproduced without modification apart from code-block layout. The file holds formulas only: no data, paths
+or connection details (inspected 2026-10). Where each object is used was read from the report definition inside the `.pbix`.
 
 Status of these objects: **expressions documented and numerically reconciled in Python and DuckDB (section 8.4); not executed inside
 Power BI Desktop by this project.** Nothing was corrected. Suspicious or fragile points are flagged in section 8.5 for your decision.
