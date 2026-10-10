@@ -273,7 +273,7 @@ IF ( [Seller: eligible orders] >= 50, [Seller: late-delivery rate] )
 ```dax
 Note: seller selection on order-level visuals =
 IF (
-    ISFILTERED ( dim_seller ) || ISFILTERED ( dim_origin_state ),
+    ISCROSSFILTERED ( dim_seller[seller_id] ) || ISCROSSFILTERED ( dim_origin_state[origin_state_code] ),
     "A seller or origin-state selection filters only the single-seller visuals. Order-level visuals on this page are not filtered by it."
 )
 
@@ -281,20 +281,40 @@ Note: snapshot visuals =
 "Fixed-period snapshot (purchases 2017-01 to 2018-08). Date, state and seller slicers do not recalculate these figures."
 ```
 
+`Note: seller selection...` uses `ISCROSSFILTERED` on a **column**, which works in all Power BI Desktop versions (passing a whole table to `ISFILTERED` is not accepted everywhere) and also fires when the slicer is on another column of the same table, for example `seller_label`.
+
 ## 6. Snapshot measures (disconnected tables `snap_*`)
 
-These return stored values; with one segment per row they use `MAX`. They are **not** recalculated from facts and ignore the date, state and seller slicers (no relationships). Only the `snapshot_level` and `tier` slicers (which belong to the snapshot table itself) affect them.
+These return stored values for **exactly one segment**. `MAX` alone would silently return the largest value when several segments are in filter context (a total row, no level slicer, a multi-select), so each segment-specific measure returns blank unless `COUNTROWS ( snap_priority_candidates ) = 1`. In a table or scatter visual grouped by `segment_label` (with a `snapshot_level` filter) every row has one segment and shows its value; total rows and multi-selected cards show blank by design. They are **not** recalculated from facts and ignore the date, state and seller slicers (no relationships). Only the `snapshot_level` and `tier` slicers (which belong to the snapshot table itself) affect them.
 
 ```dax
-Snapshot: late rate = MAX ( snap_priority_candidates[late_rate] )
-Snapshot: late rate lower = MAX ( snap_priority_candidates[late_rate_lo] )
-Snapshot: late rate upper = MAX ( snap_priority_candidates[late_rate_hi] )
-Snapshot: excess late orders = MAX ( snap_priority_candidates[excess_late] )
-Snapshot: excess late lower = MAX ( snap_priority_candidates[excess_late_lo] )
-Snapshot: excess late upper = MAX ( snap_priority_candidates[excess_late_hi] )
-Snapshot: delivered orders = MAX ( snap_priority_candidates[n_delivered] )
-Snapshot: observed to expected ratio (month x promise) = MAX ( snap_priority_candidates[oe_s1] )
-Snapshot: low-score rate, on-time orders = MAX ( snap_priority_candidates[low_ontime_rate] )
+Snapshot: late rate =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[late_rate] ) )
+
+Snapshot: late rate lower =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[late_rate_lo] ) )
+
+Snapshot: late rate upper =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[late_rate_hi] ) )
+
+Snapshot: excess late orders =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[excess_late] ) )
+
+Snapshot: excess late lower =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[excess_late_lo] ) )
+
+Snapshot: excess late upper =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[excess_late_hi] ) )
+
+Snapshot: delivered orders =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[n_delivered] ) )
+
+Snapshot: observed to expected ratio (month x promise) =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[oe_s1] ) )
+
+Snapshot: low-score rate, on-time orders =
+IF ( COUNTROWS ( snap_priority_candidates ) = 1, MAX ( snap_priority_candidates[low_ontime_rate] ) )
+
 
 Snapshot: Investigate segments =
 CALCULATE ( COUNTROWS ( snap_priority_candidates ), snap_priority_candidates[tier] = "Investigate" )
@@ -324,3 +344,50 @@ RETURN
 - No live "excess late orders" measure under slicers: excess depends on a fixed reference rate and the tiers on pre-specified rules; recomputing them under arbitrary slicers would imply a recalculated tier. Use the snapshot.
 - No seller measure on `fact_orders`, and no cross-fact measure that combines both tables.
 - No measure uses the estimated or actual delivery date as a filter.
+
+## 8. Objects in the saved dashboard that are not in this dictionary (manual confirmation required)
+
+The saved report `powerbi/Olist-Operations-Intelligence.pbix` (four pages) uses seven measures and six calculated columns that were
+created in Power BI Desktop after the Stage A dictionary above was written. They were found by inspecting the report definition inside
+the `.pbix`, which lists the fields each visual uses. The `.pbix` data model, which holds the DAX and Power Query text, is a
+compressed binary that cannot be read outside Power BI Desktop, and no formula for these objects exists elsewhere in this repository.
+**Their formulas are therefore deliberately not reproduced here.** The tables record what is verifiable (name, home table, where it is
+used) and what must still be checked. The *Closest Stage A measure* and *Related physical column* entries are guesses from the name
+only and are **not** verified equivalences.
+
+Sections 1-7 are unchanged. The automated tests validate that dictionary and its Python equivalents, **not** the objects below.
+The exported dashboard PDF (`powerbi/visualisation/Olist-Operations-Intelligence.pdf`) shows displayed values that agree with the
+documented anchors (96,203 delivered, 6.79% late, 2.97% severe, 95,037 single-review orders, 10 / 9 / 8 Investigate segments, threshold 20),
+which is supporting evidence but not a check of the formulas.
+
+### 8.1 Measures (table `_Measures`)
+
+| Dashboard measure | Used on | Role in visual | Closest Stage A measure (guess) | To confirm |
+|---|---|---|---|---|
+| `Late Rate Minimum 100` | Page 2 Delivery Performance | bar chart value | `Late-delivery rate (n >= 100)` | formula, population, 100-order rule |
+| `Seller Late Rate` | Page 2 Delivery Performance | two column charts | `Seller: late-delivery rate` | reads `fact_seller_orders` only |
+| `Review Score Share` | Page 3 Customer Experience | chart tooltip | none | numerator, denominator, population (P0 or P1) |
+| `Investigate States` | Page 4 Operational Priorities | card (shows 10) | `Snapshot: Investigate segments`, level = state | counts tier = Investigate at state level |
+| `Investigate Lanes` | Page 4 Operational Priorities | card (shows 9) | same, level = lane | as above |
+| `Investigate Sellers` | Page 4 Operational Priorities | card (shows 8) | same, level = seller | as above |
+| `Screening Threshold` | Page 4 Operational Priorities | card (shows 20) | `Snapshot: primary screening threshold` | read from `snap_metadata`, not hard-coded |
+
+### 8.2 Calculated columns
+
+| Dashboard column | Table | Used on | Role in visual | Related physical column (guess) | To confirm |
+|---|---|---|---|---|---|
+| `Delay Period Group` | `dim_date` | Page 4 | column chart axis | `year_month` | grouping; high-delay months are 2017-11, 2018-02, 2018-03 |
+| `Delivery Time Group` | `fact_orders` | Page 2 | column chart axis | `lead_time_days` | source column and bin edges |
+| `Delivery Status Label` | `fact_orders` | Page 3 | axis of two column charts | `delivery_outcome` | label mapping |
+| `Review Star Label` | `fact_orders` | Page 3 | column chart axis | `review_score` | label text and sort order |
+| `Distance Range` | `fact_seller_orders` | Page 2 | chart axis | `distance_band` | bin edges vs quartile cut points (184 / 434 / 799 km) |
+| `Shipment Type` | `fact_seller_orders` | Page 2 | column chart axis | `is_cross_state` | label mapping |
+
+Calculated columns created in Desktop are not rebuilt by `scripts/export_powerbi.py`. Anyone rebuilding the report from the package
+must recreate them; consider moving them into the export or Power Query so the package alone reproduces the report.
+
+### 8.3 How to close this section
+
+In Power BI Desktop, select each object, copy its formula from the formula bar into the tables (or into a `dax` block that follows
+the dictionary conventions), run the reconciliation checklist in `README.md` section 9, then remove the "guess" columns. Do not
+describe any object above as validated until its values are reconciled.
