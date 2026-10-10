@@ -1,92 +1,145 @@
 # Olist Operations Intelligence
 
-E-commerce operations analytics on the public Olist Brazilian marketplace dataset: delivery reliability,
-customer satisfaction and operational risk concentration. This README currently documents **Phase 1: the
-analytical data model** and the four analysis workstreams: delivery reliability, customer satisfaction,
-geographic and seller performance, and operational prioritization. See `reports/project_blueprint.md` for the full
-project design, `reports/data_model_validation.md` for the validation of the model and
-`reports/delivery_reliability_findings.md`, `reports/customer_satisfaction_findings.md`,
-`reports/geographic_seller_findings.md` and `reports/operational_prioritization_findings.md` for the findings.
+**Where do late deliveries concentrate on a Brazilian e-commerce marketplace, how do they relate to customer reviews, and which states, lanes and sellers should operations investigate first?**
 
-## Rebuild the model from the raw CSVs
+An end-to-end SQL, Python and Power BI analysis of the public Olist dataset (about 99k orders, 2017-2018). All results are **observational and descriptive**. No causal claims are made, and no machine-learning or NLP is used.
 
-Requirements: Python 3.10+ (developed on 3.14), packages in `requirements.txt` (`duckdb`, `pandas`, `numpy`, `matplotlib`, `scipy`, `statsmodels`, `pytest`).
+## Business problem
+
+An e-commerce operations manager needs to know whether delivery performance is acceptable and stable, how much late delivery matters to customer satisfaction, and where limited investigation effort should go first. The project turns the raw Olist tables into a validated analytical model, four findings workstreams and a four-page Power BI dashboard. The recommendations are *investigation priorities*, not verdicts about any seller or region.
+
+## Verified findings
+
+Every number below is taken from the findings reports in `reports/` and is backed by automated tests (see [Testing](#testing-and-validation)). Population: orders purchased 2017-01 to 2018-08 that were delivered with a delivery date (N = 96,203), unless stated.
+
+The four kinds of result in this project answer different questions and must not be mixed:
+
+| Kind of result | What it is | Example below |
+|---|---|---|
+| **Observed late-delivery rate** | Share of delivered orders that arrived after the promised calendar date. Conditional on being delivered, not a share of all orders. | 6.79% overall |
+| **Single-seller analysis** | Seller and lane results use only orders with exactly one seller (94,931 orders, 2,925 sellers). Multi-seller orders (1.3%) are excluded, not allocated. | seller screening |
+| **Review P0 / P1 sensitivity** | P0 = orders with exactly one review row (95,037). P1 = P0 minus reviews written *before* the recorded delivery date (90,103). P1 sits next to P0 to show how much the result depends on review timing. | score gap |
+| **Fixed-period priority snapshot** | Tiers computed once for the whole 2017-01 to 2018-08 period. Not recalculated by date, state or seller filters. Provisional screening labels. | Investigate tiers |
+
+### 1. Delivery reliability ([report](reports/delivery_reliability_findings.md))
+- **Observed:** 6.79% of delivered orders were late (6,531 of 96,203; Wilson 95% interval 6.63% to 6.95%) and 2.97% were more than 7 days late.
+- Median lead time is 10.2 days, p95 is 29.2 days, and the median promised lead time is 24 days.
+- Monthly cohort late rates range from 1.2% to 19.0%, so the pooled rate hides large swings.
+
+### 2. Customer satisfaction ([report](reports/customer_satisfaction_findings.md))
+- **P0 (primary):** mean review score is 4.29 for on-time and 2.27 for late orders; 9.2% vs 62.4% give 1-2 stars.
+- **P1 sensitivity:** 74.4% of late orders' reviews were written before the recorded delivery date (0.24% for on-time orders). Removing them shrinks the low-score gap from 53.1 to 15.8 percentage points. The headline gap therefore depends heavily on review timing.
+- 67% of 1-2 star orders were delivered on time. This is a composition, not an attributable fraction.
+- This is an association. The data cannot show that lateness *causes* low scores.
+
+### 3. Geography and sellers ([report](reports/geographic_seller_findings.md))
+- State late rates run from 2.8% to 21.5% across 24 reportable states. The five highest are Northeast states, and São Paulo is the lowest large state (4.5%).
+- Rio de Janeiro has 13% of orders but 23% of late orders (12.1% late on 12,310 orders).
+- Cross-state shipments are late 8.2% of the time vs 4.6% for same-state. Distance is a straight-line ZIP-prefix approximation, not road distance.
+- **Single-seller analysis:** 57 of 412 sellers with at least 50 orders have an interval entirely above the portfolio rate (about 14 expected by chance). Seller late rates are only moderately persistent between window halves (rank correlation 0.35).
+- The 2017-11, 2018-02 and 2018-03 spike (15.1% vs 4.5% in other months) was broad-based. At most 0.2 of the 10.7 points is explained by changes in state, lane or seller mix.
+
+### 4. Operational prioritization ([report](reports/operational_prioritization_findings.md))
+- **Fixed-period snapshot:** at the 20-excess-late-order screening policy, 10 states, 9 lanes and 8 sellers are tiered *Investigate*.
+- The state and lane lists are stable to the threshold and to removing the three high-delay months. **Only 2 of 8 Investigate sellers persist**, so seller results are secondary screening evidence, not a ranking.
+- SP>RJ (seller state > customer state) is the largest lane (+596 excess late orders, 14.3% late on 8,031 orders) and largely overlaps the Rio de Janeiro state result. The state, lane and seller levels overlap heavily, so excess is never added across levels (+2,658 summed vs +1,384 for the union).
+- The 20-order threshold is an **operational screening policy, not statistical significance**.
+
+## Operational recommendations
+
+These follow from the descriptive results and are suggestions to be confirmed with operations data that this dataset does not contain (carrier, warehouse, SLA).
+
+1. **Start the investigation with Rio de Janeiro-bound shipments (SP>RJ) and the Northeast-bound lanes.** Use volume (excess late orders) to pick the first target and rate (intensity) to pick the second.
+2. **Review the delivery promise for high-delay periods.** The Nov 2017, Feb 2018 and Mar 2018 spikes affected nearly every state and most sellers, which points to network-wide rather than segment-specific causes. The data cannot say which.
+3. **Treat seller flags as prompts for a conversation, not a scorecard.** They are unstable once the high-delay months are removed.
+4. **Do not size the benefit of fewer late orders from the review gap.** Review timing and non-response limit what the gap means.
+
+No financial impact is estimated, because the dataset has no cost or margin information.
+
+## Dashboard
+
+A four-page Power BI report (1920x1080 pages: Executive Overview, Delivery Performance, Customer Experience, Operational Priorities) was built from the validated import package. A PDF export of the four pages is in [`powerbi/visualisation/Olist-Operations-Intelligence.pdf`](powerbi/visualisation/Olist-Operations-Intelligence.pdf).
+
+The `.pbix` itself is **not published in this repository**. It embeds row-level data derived from the Olist dataset, so it is kept local until the data-licence question below is settled. The import package definition (Power Query script, data dictionary, DAX dictionary and page specifications) is in [`powerbi/`](powerbi/); the row-level import CSVs are rebuilt with `scripts/export_powerbi.py`. How a data-free Power BI Project could be published is described in [`powerbi/README.md`](powerbi/README.md), section 11. It has not been created or inspected yet.
+
+**Screenshots: not yet added.** Page images will be added under `docs/dashboard/` from the report owner's Power BI Desktop export; none are included, and none have been generated or mocked up. Until then, analysis charts rendered from the same validated data are in [`reports/figures/`](reports/figures/), for example:
+
+![Monthly late rate](reports/figures/delivery_01_monthly_late_rate.png)
+![Top priority candidates](reports/figures/prio_06_top_candidates.png)
+
+Measure definitions, relationships and a KPI reconciliation checklist are in [`powerbi/README.md`](powerbi/README.md) and [`powerbi/dax_measures.md`](powerbi/dax_measures.md). Seven measures and six calculated columns used by the report are not yet documented there (section 8 of the DAX dictionary); the DAX inside the report has not been machine-verified (see [Limitations](#limitations)).
+
+## Methods
+
+- **Model:** DuckDB SQL builds typed staging tables, dimensions and an order-grain fact table with explicit population flags (about 34 build-time assertions).
+- **Statistics:** Wilson intervals for proportions; seeded bootstrap (customers resampled as clusters) for medians and effect sizes; indirect standardisation (observed vs expected) by purchase month and promised lead time; stratified Mantel-Haenszel risk ratios; logistic regression with cluster-robust errors for adjusted review associations.
+- **Screening rules:** fixed before looking at results (minimum volume, interval above reference, 20-excess-order policy, window-half consistency).
+- **Validation:** an independent pandas implementation recomputes the SQL results, and Power BI DAX measures are checked through Python equivalents.
+
+## Technology stack
+
+DuckDB (SQL), Python 3.14 (pandas, NumPy, SciPy, statsmodels, matplotlib), pytest, Power BI Desktop (DAX, Power Query), Git.
+
+## Project structure
+
+```
+data/raw/            original Olist CSVs (git-ignored, you download them)
+data/processed/      built DuckDB model (git-ignored, regenerated)
+sql/                 01-03 model build; analysis/ (per workstream); powerbi/ (export queries)
+scripts/             model build, validation reports, Power BI export, DAX equivalents
+analysis/            statistics, figures and findings-report generators (4 workstreams)
+tests/               pytest suite and independent pandas reference
+reports/             blueprint, validation and four findings reports; tables/ and figures/
+powerbi/             .pbix, import package, Power Query, DAX dictionary, page specs
+```
+
+## Data source
+
+The raw data is not included. Download "Brazilian E-Commerce Public Dataset by Olist" from Kaggle (free account): <https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce>. Unzip and copy the nine CSVs into `data/raw/`:
+
+`olist_customers_dataset.csv`, `olist_geolocation_dataset.csv`, `olist_order_items_dataset.csv`, `olist_order_payments_dataset.csv`, `olist_order_reviews_dataset.csv`, `olist_orders_dataset.csv`, `olist_products_dataset.csv`, `olist_sellers_dataset.csv`, `product_category_name_translation.csv`.
+
+## Data licence and attribution
+
+- **Dataset:** "Brazilian E-Commerce Public Dataset by Olist", published by Olist on Kaggle: <https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce>.
+- **Dataset licence:** Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (**CC BY-NC-SA 4.0**), as listed in the dataset's Kaggle metadata (checked 2026-10-10). Licence text: <https://creativecommons.org/licenses/by-nc-sa/4.0/>.
+- **What this means here:** the dataset and anything derived from it (including row-level exports such as the Power BI fact tables and the `.pbix`) remain subject to those terms: attribution to Olist, non-commercial use only, and share-alike. This repository does **not** contain the raw CSVs, the DuckDB database, the row-level Power BI fact CSVs or the `.pbix`. Published tables and figures are aggregates computed from the dataset and are shared under the same non-commercial, share-alike terms with attribution to Olist.
+- **Project code licence:** the licence for the original code (SQL, Python, tests, documentation) is a separate matter and has **not been chosen yet**. See the [audit](reports/final_portfolio_audit.md) for the proposal. Until a `LICENSE` file is added, no licence for the code is granted by default. The dataset licence does not apply to code that contains no Olist data, and a code licence does not change the dataset's terms.
+- This is a portfolio project, not affiliated with or endorsed by Olist. This note is not legal advice.
+
+
+## How to reproduce
+
+Requires Python 3.10+ (developed and tested on 3.14).
 
 ```bash
 pip install -r requirements.txt
 
-# 1. download the dataset (see "Data source" below) and place the nine original Olist CSVs in data/raw/
-#    (they are read-only inputs and are never modified)
-# 2. build the DuckDB model (about a few seconds) -> data/processed/olist_model.duckdb
-python scripts/build_model.py
+python scripts/build_model.py                      # DuckDB model -> data/processed/olist_model.duckdb (seconds)
+python -m pytest                                   # 186 tests, about 2 minutes (builds into a temp database)
 
-# 3. run the automated tests (rebuilds into a temp database, compares with an independent pandas implementation)
-python -m pytest
+python analysis/delivery_reliability.py            && python analysis/build_delivery_report.py
+python analysis/customer_satisfaction.py           && python analysis/build_satisfaction_report.py   # about 1 minute
+python analysis/geographic_seller.py               && python analysis/build_geographic_seller_report.py
+python analysis/operational_prioritization.py      && python analysis/build_prioritization_report.py
 
-# 4. regenerate the validation report
-python scripts/build_validation_report.py        # writes reports/data_model_validation.md
-
-# 5. delivery-reliability workstream (tables, figures, stats JSON, then the findings report)
-python analysis/delivery_reliability.py
-python analysis/build_delivery_report.py         # writes reports/delivery_reliability_findings.md
-
-# 6. customer-satisfaction workstream (needs statsmodels; about a minute)
-python analysis/customer_satisfaction.py
-python analysis/build_satisfaction_report.py     # writes reports/customer_satisfaction_findings.md
-
-# 7. geographic and seller workstream (descriptive screening; no priority tiers yet)
-python analysis/geographic_seller.py
-python analysis/build_geographic_seller_report.py # writes reports/geographic_seller_findings.md
-
-# 8. operational prioritization (provisional evidence tiers; no composite score)
-python analysis/operational_prioritization.py
-python analysis/build_prioritization_report.py   # writes reports/operational_prioritization_findings.md
-
-# 9. Power BI Stage A: import package (CSV), Power Query script and validation report (no .pbix is built)
-python scripts/export_powerbi.py                  # writes powerbi/data/*.csv, manifest, data dictionary, powerbi/power_query.m
-python scripts/build_powerbi_validation_report.py # writes reports/powerbi_preparation_validation.md
+python scripts/export_powerbi.py                   # powerbi/data/*.csv, manifest, power_query.m
+python scripts/build_powerbi_validation_report.py
 ```
 
-Power BI implementation guide (import, relationships, DAX, page specifications, KPI reconciliation checklist): [`powerbi/README.md`](powerbi/README.md).
+`scripts/build_model.py` accepts `--raw <csv dir> --db <output .duckdb>`. All paths are relative to the project root. The `build_*_report.py` scripts also run pytest and embed the result in the report.
 
-All paths are relative to the project root; no absolute paths are stored.
-Optional arguments: `python scripts/build_model.py --raw <csv dir> --db <output .duckdb>`.
+To open the dashboard from scratch, follow [`powerbi/README.md`](powerbi/README.md). The `fact_orders.csv` and `fact_seller_orders.csv` import files are git-ignored (about 36 MB) and are rebuilt by `scripts/export_powerbi.py`.
 
-## Data source
+## Testing and validation
 
-The raw data is not included in this repository. Download "Brazilian E-Commerce Public Dataset by Olist"
-from Kaggle: <https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce> (requires a free Kaggle account),
-unzip it and copy these nine files into `data/raw/`:
+186 pytest tests cover the model, each analysis workstream and the Power BI export. The suite also verifies that the raw CSVs stay byte-identical. See [`reports/final_portfolio_audit.md`](reports/final_portfolio_audit.md) for what was executed during the pre-publication audit and what could not be checked.
 
-`olist_customers_dataset.csv`, `olist_geolocation_dataset.csv`, `olist_order_items_dataset.csv`,
-`olist_order_payments_dataset.csv`, `olist_order_reviews_dataset.csv`, `olist_orders_dataset.csv`,
-`olist_products_dataset.csv`, `olist_sellers_dataset.csv`, `product_category_name_translation.csv`.
+## Limitations
 
-Check the licence and terms on the Kaggle page before reusing or redistributing the data.
-
-## Layout
-
-| Path | Purpose |
-|---|---|
-| `data/raw/` | Original CSVs (git-ignored, read-only) |
-| `data/processed/` | Built DuckDB database (git-ignored, regenerated) |
-| `sql/01_staging.sql` | Typed copies of raw CSVs (`stg_*`) |
-| `sql/02_dimensions.sql` | Parameters, `dim_date`, `dim_state` (IBGE macro-regions), `dim_zip_geo`, `dim_product`, `dim_seller` |
-| `sql/03_facts.sql` | `fact_order_items`, `bridge_order_seller`, `fact_reviews`, `fact_orders`, `v_single_seller_orders` |
-| `scripts/build_model.py` | Runs the SQL in order, then ~33 structural assertions (fails and removes the DB on violation) |
-| `scripts/build_validation_report.py` | Runs the tests and writes the validation report |
-| `scripts/profile_dataset.py`, `validate_kpis.py`, `build_*_report.py` | Earlier phases (profiling and KPI validation) |
-| `sql/analysis/delivery/`, `satisfaction/`, `geography/`, `prioritization/` | Primary KPI queries for the four analysis workstreams (DuckDB SQL) |
-| `analysis/` | Python statistics, charts and findings-report generators (`delivery_reliability.py`, `customer_satisfaction.py`, `geographic_seller.py`, `operational_prioritization.py`, `build_*_report.py`) |
-| `sql/powerbi/`, `scripts/export_powerbi.py`, `scripts/powerbi_dax_equivalents.py`, `powerbi/` | Power BI import package, DAX dictionary, page specifications and implementation guide (Stage A) |
-| `tests/` | pytest suite, independent pandas reference (`reference_pandas.py`) and documented anchors (`anchors.py`) |
-| `reports/` | Feasibility, KPI validation, blueprint, model validation and delivery-reliability reports; `tables/` (CSV) and `figures/` (PNG) hold analysis outputs |
-
-## Key modelling rules (details in the blueprint)
-
-- Window: purchases 2017-01 to 2018-08. Lateness: calendar date of delivery after the estimated date.
-- `fact_orders` keeps **all** orders; populations are explicit flags (`is_delivery_kpi_eligible`, `is_seller_kpi_eligible`, `is_review_kpi_eligible`).
-- Six mutually exclusive fulfilment classes; original `order_status` is preserved; cancelled/unavailable orders are never "open past promise".
-- `review_score` exists only for orders with exactly one review row; no "latest review" is assumed.
-- Seller attribution only for single-seller orders (`v_single_seller_orders`).
-- Raw data is not committed. This project is not under version control yet and nothing has been pushed anywhere.
+- The late rate is conditional on delivery. Cancelled, unavailable and still-open orders are not in the denominator and are reported separately.
+- Delivery timestamps are order-level, so seller handling, carrier transit and last-mile delivery cannot be separated. No carrier, warehouse or SLA data exists.
+- Reviews are voluntary, and a large share of late-order reviews were written before delivery. Review results are associations.
+- Seller results hold for single-seller orders only and are unstable across periods.
+- One marketplace, a 20-month window, and no cost data: no financial impact is claimed.
+- The DAX measures were validated through Python equivalents, not executed in Power BI Desktop in this audit.
