@@ -55,6 +55,17 @@ desktop.ini
 *.log
 *.swp
 
+# ---- Power BI: data-bearing report files stay local (see powerbi/README.md section 11) ----
+*.pbix
+*.pbit
+*.abf
+# ---- Power BI local/temporary files ----
+.pbi/
+*.pbix.bak
+*.pbi.tmp
+~$*
+AutoRecover/
+
 # ---- Claude Code local settings ----
 .claude/settings.local.json
 
