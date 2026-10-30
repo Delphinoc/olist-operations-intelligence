@@ -96,6 +96,14 @@ Two reading notes for the page 2 charts:
 - **Population.** "Late-Delivery Rate by Shipment Type" and "by Shipping Distance" use the **single-seller** population (94,931 orders, 6.87% late overall), because seller state and distance exist only for orders with one seller. The other page 2 visuals use all 96,203 delivered orders (6.79%).
 - **Lead-time bands.** "Distribution of Delivery Lead Times" bins fractional days with the rule *at least the lower bound and below the upper bound*: "0–4 days" means under 5.0 days (4.9 days is included), "5–9 days" means 5.0 to under 10.0 days, and so on up to "30+ days" (30.0 days or more).
 
+## Data documentation
+
+- [`docs/data_dictionary.md`](docs/data_dictionary.md): every table and column in the DuckDB model, with grain, keys, business rules, population flags, data quality checks and the change process.
+- [`docs/data_lineage.md`](docs/data_lineage.md): lineage from the raw CSVs through the model to the findings reports and the dashboard, plus a source-to-report trace for every headline figure (stats key, SQL file, model column, raw field and the test that pins it).
+- [`powerbi/data/data_dictionary.csv`](powerbi/data/data_dictionary.csv) and [`powerbi/dax_measures.md`](powerbi/dax_measures.md): the dashboard import package and its DAX measures.
+
+`tests/test_documentation.py` keeps the model dictionary in step with the SQL, and checks that every file the lineage doc points to exists.
+
 ## Methods
 
 - **Model:** DuckDB SQL builds typed staging tables, dimensions and an order-grain fact table with explicit population flags (about 34 build-time assertions).
@@ -115,6 +123,7 @@ data/processed/      built DuckDB model (git-ignored, regenerated)
 sql/                 01-03 model build; analysis/ (per workstream); powerbi/ (export queries)
 scripts/             model build, validation reports, Power BI export, DAX equivalents
 analysis/            statistics, figures and findings-report generators (4 workstreams)
+docs/                data dictionary, data lineage, dashboard screenshots
 tests/               pytest suite and independent pandas reference
 reports/             blueprint, validation and four findings reports; tables/ and figures/
 powerbi/             .pbix, import package, Power Query, DAX dictionary, page specs
@@ -143,7 +152,7 @@ Requires Python 3.10+ (developed and tested on 3.14).
 pip install -r requirements.txt
 
 python scripts/build_model.py                      # DuckDB model -> data/processed/olist_model.duckdb (seconds)
-python -m pytest                                   # 186 tests, about 2 minutes (builds into a temp database)
+python -m pytest                                   # 199 tests, about 2 minutes (builds into a temp database)
 
 python analysis/delivery_reliability.py            && python analysis/build_delivery_report.py
 python analysis/customer_satisfaction.py           && python analysis/build_satisfaction_report.py   # about 1 minute
@@ -160,7 +169,7 @@ To open the dashboard from scratch, follow [`powerbi/README.md`](powerbi/README.
 
 ## Testing and validation
 
-186 pytest tests cover the model, each analysis workstream and the Power BI export. The suite also verifies that the raw CSVs stay byte-identical. See [`reports/final_portfolio_audit.md`](reports/final_portfolio_audit.md) for what was executed during the pre-publication audit and what could not be checked.
+199 pytest tests cover the model, each analysis workstream, the Power BI export and the data documentation. The suite also verifies that the raw CSVs stay byte-identical. See [`reports/final_portfolio_audit.md`](reports/final_portfolio_audit.md) for what was executed during the pre-publication audit and what could not be checked.
 
 ## Limitations
 
