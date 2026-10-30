@@ -111,6 +111,10 @@ Two reading notes for the page 2 charts:
 - **Screening rules:** fixed before looking at results (minimum volume, interval above reference, 20-excess-order policy, window-half consistency).
 - **Validation:** an independent pandas implementation recomputes the SQL results, and Power BI DAX measures are checked through Python equivalents.
 
+## Companion notebook: A/B testing and impact measurement
+
+[`notebooks/impact_measurement.ipynb`](notebooks/impact_measurement.ipynb) asks how operations would prove that an initiative to cut late deliveries actually worked. It runs on the aggregate tables in `reports/tables/` (no raw data needed) and covers experiment design (MDE, power, sample size and duration from real Olist baselines), the analysis of a **simulated** A/B test (sample-ratio check, two-proportion z-test, confidence interval), peeking and multiple-metric pitfalls, why the real same-state vs cross-state gap and a naive pre/post comparison are not experiments, and difference-in-differences. The simulated and illustrative parts are labelled and are not Olist findings. `notebooks/impact_measurement.py` is the same notebook as a plain script.
+
 ## Technology stack
 
 DuckDB (SQL), Python 3.14 (pandas, NumPy, SciPy, statsmodels, matplotlib), pytest, Power BI Desktop (DAX, Power Query), Git.
