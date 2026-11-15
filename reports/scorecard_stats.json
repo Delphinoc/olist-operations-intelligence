@@ -1,0 +1,34 @@
+{
+  "tol_on_time_pp": 1.0,
+  "tol_review": 0.1,
+  "qbr_quarter": "2018-Q2",
+  "prev_quarter": "2018-Q1",
+  "min_scored_orders": 30,
+  "active_sellers": 1640,
+  "scored_sellers": 128,
+  "scored_share_of_orders": 0.5292227979274612,
+  "scored_share_of_gmv": 0.4443087282561122,
+  "marketplace_gmv": 2733334.78,
+  "marketplace_gmv_prev": 2652828.16,
+  "marketplace_gmv_qoq_pct": 0.03034746886884654,
+  "marketplace_orders": 19300,
+  "bench_on_time_rate": 0.9575647668393782,
+  "bench_on_time_rate_prev": 0.8699043414275203,
+  "bench_avg_review": 4.271007089241034,
+  "bench_avg_review_prev": 3.9543190196273788,
+  "status_counts": {
+    "On track": 61,
+    "Watch": 52,
+    "Review": 15
+  },
+  "status_gmv_share": {
+    "On track": 0.48241391846230935,
+    "Watch": 0.41251620802762085,
+    "Review": 0.10506987351006983
+  },
+  "top10_gmv_share_of_marketplace": 0.14788225465744081,
+  "top10_on_track": 6,
+  "scored_both_quarters": 80,
+  "scored_both_gmv_growth_median": -0.1464813335294417,
+  "scored_both_on_time_improved": 74
+}

@@ -111,6 +111,19 @@ Two reading notes for the page 2 charts:
 - **Screening rules:** fixed before looking at results (minimum volume, interval above reference, 20-excess-order policy, window-half consistency).
 - **Validation:** an independent pandas implementation recomputes the SQL results, and Power BI DAX measures are checked through Python equivalents.
 
+## Partner scorecard and quarterly business review
+
+[`analysis/seller_scorecard.py`](analysis/seller_scorecard.py) turns the single-seller orders into a quarterly
+seller (partner) scorecard and a QBR snapshot ([findings](reports/seller_scorecard_findings.md)).
+
+- **Metrics per seller and quarter:** orders, GMV (item prices, BRL), average order value, share of marketplace GMV, on-time rate, mean review score, low-review share, and quarter-on-quarter change in GMV, orders, on-time rate and review score.
+- **Status:** sellers with 30+ orders in a quarter are scored against the marketplace's own benchmark for that quarter. *On track* meets both the on-time and review benchmarks, *Watch* misses one, *Review* misses both (tolerance 1.0 pp and 0.10 points).
+- **2018-Q2 QBR:** marketplace GMV was BRL 2.73M (+3.0% vs 2018-Q1). 128 of 1,640 active sellers were scored, and they hold 44% of GMV: 61 On track, 52 Watch and 15 Review. The top 10 sellers hold 14.8% of GMV, and 6 of them are On track.
+- **Power BI:** the aggregate tables are in `powerbi/data/scorecard_*.csv`. The page build guide, with Power Query, DAX measures, visuals and a reconciliation checklist, is in [`powerbi/page_05_partner_scorecard.md`](powerbi/page_05_partner_scorecard.md).
+- 11 tests in `tests/test_seller_scorecard.py` recompute the seller-quarter table independently from the raw CSVs and check the status, quarter-on-quarter and QBR logic.
+
+![Seller scorecard matrix](reports/figures/scorecard_01_qbr_matrix.png)
+
 ## Companion notebook: A/B testing and impact measurement
 
 [`notebooks/impact_measurement.ipynb`](notebooks/impact_measurement.ipynb) asks how operations would prove that an initiative to cut late deliveries actually worked. It runs on the aggregate tables in `reports/tables/` (no raw data needed) and covers experiment design (MDE, power, sample size and duration from real Olist baselines), the analysis of a **simulated** A/B test (sample-ratio check, two-proportion z-test, confidence interval), peeking and multiple-metric pitfalls, why the real same-state vs cross-state gap and a naive pre/post comparison are not experiments, and difference-in-differences. The simulated and illustrative parts are labelled and are not Olist findings. `notebooks/impact_measurement.py` is the same notebook as a plain script.
@@ -156,12 +169,13 @@ Requires Python 3.10+ (developed and tested on 3.14).
 pip install -r requirements.txt
 
 python scripts/build_model.py                      # DuckDB model -> data/processed/olist_model.duckdb (seconds)
-python -m pytest                                   # 199 tests, about 2 minutes (builds into a temp database)
+python -m pytest                                   # 211 tests, about 2 minutes (builds into a temp database)
 
 python analysis/delivery_reliability.py            && python analysis/build_delivery_report.py
 python analysis/customer_satisfaction.py           && python analysis/build_satisfaction_report.py   # about 1 minute
 python analysis/geographic_seller.py               && python analysis/build_geographic_seller_report.py
 python analysis/operational_prioritization.py      && python analysis/build_prioritization_report.py
+python analysis/seller_scorecard.py                # partner scorecard + QBR, powerbi/data/scorecard_*.csv
 
 python scripts/export_powerbi.py                   # powerbi/data/*.csv, manifest, power_query.m
 python scripts/build_powerbi_validation_report.py
@@ -173,7 +187,7 @@ To open the dashboard from scratch, follow [`powerbi/README.md`](powerbi/README.
 
 ## Testing and validation
 
-199 pytest tests cover the model, each analysis workstream, the Power BI export and the data documentation. The suite also verifies that the raw CSVs stay byte-identical. See [`reports/final_portfolio_audit.md`](reports/final_portfolio_audit.md) for what was executed during the pre-publication audit and what could not be checked.
+211 pytest tests cover the model, each analysis workstream, the Power BI export and the data documentation. The suite also verifies that the raw CSVs stay byte-identical. See [`reports/final_portfolio_audit.md`](reports/final_portfolio_audit.md) for what was executed during the pre-publication audit and what could not be checked.
 
 ## Limitations
 
