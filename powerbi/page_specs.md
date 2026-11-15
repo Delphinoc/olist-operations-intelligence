@@ -88,3 +88,7 @@ relationships are in `README.md`.
 | 6 | **Appendix (secondary), reached by a bookmark button** | scatter | X `excess_late`, Y `excess_low`, size `n_delivered`, legend `tier`; second scatter with `excess_low_after` | Title: "Appendix: excess late vs excess low-score orders. The axes use different populations (delivered vs reviewed orders) and move together." Not part of the main reading order |
 
 **Interactions:** the level slicer drives 1-5; selecting a point in 1 highlights the row in 2; visual 6 is only on the appendix bookmark. **Interpretation caveats:** excess is relative to the level's population late rate (a reference, not a target); intervals assume independent orders; seller results are secondary screening evidence; several sellers' stability is unverified; Northeast-bound lanes are defined by destination state (use `northeast_bound` / `display_region`, never the origin).
+
+## Page 5: Partner Scorecard & QBR
+
+See [page_05_partner_scorecard.md](page_05_partner_scorecard.md) for the full build guide (separate aggregate tables, no change to pages 1-4).
